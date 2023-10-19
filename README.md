@@ -25,6 +25,11 @@ Windows:
 
   django-admin startproject setup
 
-5) Rodar o servidor 
+5) Instalar rest framework
+
+  pip install djangorestframework
+  pip install markdown
+
+6) Rodar o servidor 
 
   python manage.py runserver
