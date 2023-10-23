@@ -1,5 +1,8 @@
 # DjangoAPI
-1) Estabelecer um ambiente virtual dentro do diretório do projeto
+1) Instalar pacotes necessario
+  pip install -r requirements.txt
+
+2) Estabelecer um ambiente virtual dentro do diretório do projeto
 
 Linux/MacOS:
   virtualenv -p python3 venv
@@ -7,7 +10,7 @@ Linux/MacOS:
 Windows:
   python -m virtualenv venv
   
-2) Ativar o ambiente virtual
+3) Ativar o ambiente virtual
 
 Linux/MacOS:
 
@@ -17,19 +20,19 @@ Windows:
 
   venv/Scripts/activate
   
-3) Instalar o Django
+4) Instalar o Django
 
   pip install django==4.1
   
-4) Criar o projeto Django
+5) Criar o projeto Django
 
   django-admin startproject setup
 
-5) Instalar rest framework
+6) Instalar rest framework
 
   pip install djangorestframework
   pip install markdown
 
-6) Rodar o servidor 
+7) Rodar o servidor 
 
   python manage.py runserver
