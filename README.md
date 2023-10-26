@@ -5,9 +5,11 @@
 2) Estabelecer um ambiente virtual dentro do diretório do projeto
 
 Linux/MacOS:
+
   virtualenv -p python3 venv
   
 Windows:
+
   python -m virtualenv venv
   
 3) Ativar o ambiente virtual
