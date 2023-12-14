@@ -1,6 +1,6 @@
 import os, django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setup.settings')
+'''os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setup.settings')
 django.setup()
 
 from faker import Faker

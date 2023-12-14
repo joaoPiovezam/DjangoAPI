@@ -1,19 +1,19 @@
 from rest_framework import viewsets, generics
 from rest_framework import status
-from escola.models import Aluno, Curso, Matricula
-from escola.serializer import AlunoSerializer, AlunoSerializerV2, CursoSerializer, MatriculaSerializer, ListaMatriculasAlunoSerializer, ListaAlunosMatriculadosSerializer
+from loja.models import Peca#, Curso, Matricula
+from loja.serializer import PecaSerializer, PecaSerializerV2#, CursoSerializer, MatriculaSerializer, ListaMatriculasAlunoSerializer, ListaAlunosMatriculadosSerializer
 from rest_framework.response import Response
 
-class AlunosViewSet(viewsets.ModelViewSet):
+class PcasViewSet(viewsets.ModelViewSet):
     """Exibindo todos os alunos e alunas"""
-    queryset = Aluno.objects.all()
+    queryset = Peca.objects.all()
     def get_serializer_class(self):
         if self.request.version == 'v2':
-            return AlunoSerializerV2
+            return PecaSerializerV2
         else:
-            return AlunoSerializer
+            return PecaSerializer
 
-class CursosViewSet(viewsets.ModelViewSet):
+'''class CursosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os cursos"""
     queryset = Curso.objects.all()
     serializer_class = CursoSerializer
