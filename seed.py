@@ -34,4 +34,4 @@ def criando_cursos(quantidade_de_cursos):
 
 
 criando_alunos(200)
-criando_cursos(5)
+criando_cursos(5)'''
