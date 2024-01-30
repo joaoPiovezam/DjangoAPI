@@ -23,7 +23,7 @@ class PedidoSerializer(serializers.ModelSerializer):
         
 class ListaPedidoOrcamentoSerializer(serializers.ModelSerializer):
     orcamento = serializers.ReadOnlyField(source='orcamento.codigo')
-    peca = serializers.ReadOnlyField(source='peca.descricao')
+    peca = serializers.ReadOnlyField(source='peca.codigo')
     class Meta:
         model = Pedido
         fields = '__all__'
