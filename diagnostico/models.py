@@ -48,7 +48,7 @@ class Pergunta(Atualizada):
     )
     
     TIPO = (
-        (0, _('Multipla Escolha'))
+        (0, _('Multipla Escolha')),
     )
     
     questionario = models.ForeignKey(
