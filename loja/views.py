@@ -34,6 +34,6 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
     """Exibindo todos os pedidos de um orcamento"""
     
     def get_queryset(self):
-        queryset = Pedido.objects.filter(codigoOrcamento_id = self.kwargs['pk'])
+        queryset = Pedido.objects.filter(codigoOrcamento = self.kwargs['pk'])
         return queryset
     serializer_class = ListaPedidoOrcamentoSerializer

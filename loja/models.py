@@ -55,3 +55,5 @@ class Pedido(models.Model):
     codigoOrcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE)
     codigoCliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     quantidade = models.IntegerField()
+    def __str__(self):
+        return self.quantidade
