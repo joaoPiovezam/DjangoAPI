@@ -32,6 +32,26 @@ class Atualizada(models.Model):
     class Meta:
         abstract = True
 
+class Node(models.Model):
+    RESULTADO = (
+        (0, _('Não')),
+        (1, _('Sim')),
+    )
+    RESULTADO_PAI = (
+        (0, _('Não')),
+        (1, _('Sim')),
+        (2, _('Nulo'))
+    )
+    questionario = models.ForeignKey(
+        Questionario, related_name = 'node', on_delete = models.DO_NOTHING
+    )
+    resultado = models.IntegerField(choices = RESULTADO, default = 0, verbose_name = _("Resultado"))
+    resultado = models.IntegerField(choices = RESULTADO_PAI, default = 2, null = False, verbose_name = _("Resultado do nó Pai"))
+    codigoNode = models.IntegerField(unique = True, null = False)
+    noPai = models.IntegerField(null = True)
+    
+    
+    
 class Pergunta(Atualizada):
     
     class Meta:
@@ -49,10 +69,14 @@ class Pergunta(Atualizada):
     
     TIPO = (
         (0, _('Multipla Escolha')),
+        (1, _('Dicotômica')),
     )
     
     questionario = models.ForeignKey(
         Questionario, related_name = 'pergunta', on_delete = models.DO_NOTHING
+    )
+    node = models.ForeignKey(
+        Node, on_delete = models.DO_NOTHING
     )
     tecnica = models.IntegerField(choices = TIPO, default = 0, verbose_name = _("Tipo de Pergunta"))
     titulo = models.CharField(verbose_name = _("Titulo"), max_length=255)
