@@ -1,28 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Tabela de dados JSON</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <table border="1">
-
-    </table>
-
-    <script>
-        const listEL = document.querySelector('table');
-        fetch('http://127.0.0.1:8000/orcamento/1/pedidos/?format=json')
-            .then(res => res.json())
-            .then(data =>{
-                data.forEach(post => {                   
-                    listEL.insertAdjacentHTML('beforeend', `<tr><td>${post.peca.codigo}</td>`)
-                        listEL.innerHTML()
-                    listEL.insertAdjacentHTML('beforeend', `<td>${post.peca.descricao}</td></tr>`)
-                })
-            })
-    </script>
-
+    <h1>Tabela de Pedidos</h1>
+    <div id="tabela-pedidos"></div>
+    <script src="script.js"></script>
 </body>
 </html>

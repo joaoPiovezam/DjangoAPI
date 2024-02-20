@@ -10,13 +10,18 @@ class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
         fields = '__all__'
-        
+         
 class OrcamentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orcamento
         fields = '__all__'
         
-      
+class ClienteOrcamentoSerializer(serializers.ModelSerializer):
+    client = ClienteSerializer(source = 'cliente')
+    class Meta:
+        model = Orcamento
+        fields = ['client']
+            
 class PedidoSerializer(serializers.ModelSerializer):
     peca = PecaSerializer(source = 'codigoPeca')
     class Meta:
@@ -24,9 +29,9 @@ class PedidoSerializer(serializers.ModelSerializer):
         fields  = ['peca','quantidade']
                         
 class ListaPedidoOrcamentoSerializer(serializers.ModelSerializer):
+    cliente = ClienteOrcamentoSerializer(source = 'codigoOrcamento')
     orcamento = OrcamentoSerializer(source = 'codigoOrcamento')
     peca = PecaSerializer(source = 'codigoPeca')
-    cliente = ClienteSerializer(source = 'codigoCliente')
     class Meta:
         model = Pedido
-        fields = ['peca','quantidade','orcamento','cliente']
+        fields = ['peca','quantidade','dataEntrega','codigoCliente','orcamento','cliente']
