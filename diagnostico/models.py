@@ -46,9 +46,10 @@ class Node(models.Model):
         Questionario, related_name = 'node', on_delete = models.DO_NOTHING
     )
     resultado = models.IntegerField(choices = RESULTADO, default = 0, verbose_name = _("Resultado"))
-    resultado = models.IntegerField(choices = RESULTADO_PAI, default = 2, null = False, verbose_name = _("Resultado do nó Pai"))
+    resultadoPai = models.IntegerField(choices = RESULTADO_PAI, default = 2, null = False, verbose_name = _("Resultado do nó Pai"))
     codigoNode = models.IntegerField(unique = True, null = False)
     noPai = models.IntegerField(null = True)
+    questao = models.CharField(null = False, max_length = 255)
     
     
     
@@ -60,11 +61,18 @@ class Pergunta(Atualizada):
         ordering = ['id']
         
     Escala = (
+        (0, _('Nulo')),
         (1, _('Muito Pouco')),
         (2, _('Pouco')),
         (3, _('Razoavel')),
         (4, _('Ok')),
         (5, _('Muito')),
+    )
+    
+    Opcao = (
+        (0, _('Nulo')),
+        (1, _('Sim')),
+        (2, _('Não')),
     )
     
     TIPO = (
@@ -80,7 +88,8 @@ class Pergunta(Atualizada):
     )
     tecnica = models.IntegerField(choices = TIPO, default = 0, verbose_name = _("Tipo de Pergunta"))
     titulo = models.CharField(verbose_name = _("Titulo"), max_length=255)
-    opcao = models.IntegerField(choices = Escala, default = 3, verbose_name = _("Opção"))
+    escala = models.IntegerField(choices = Escala, default = 0, verbose_name = _("Escala"))
+    opcao = models.IntegerField(choices = Opcao, default = 0, verbose_name = _("Opção"))
     data_criacao = models.DateTimeField(auto_now_add = True, verbose_name = _("Data de Criação"))
     esta_ativo = models.BooleanField(default = True, verbose_name = _("Status de Ativação"))
     

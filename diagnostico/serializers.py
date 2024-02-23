@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Questionario, Resposta, Pergunta
+from .models import Node, Questionario, Resposta, Pergunta
 
 class QuestionarioSerializer(serializers.ModelSerializer):
     
@@ -41,3 +41,8 @@ class PerguntaSerializer(serializers.ModelSerializer):
         fields = [
             'questionario','titulo','resposta',
         ]
+        
+class NodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Node
+        fields = '__all__'

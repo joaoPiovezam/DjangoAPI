@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework import generics
-from .models import Questionario as QuestionarioModel, Pergunta, Categoria
-from .serializers import QuestionarioSerializer, RandomPerguntaSerializer, PerguntaSerializer
+from rest_framework import viewsets, generics
+from .models import Questionario as QuestionarioModel, Node, Pergunta, Categoria
+from .serializers import NodeSerializer, QuestionarioSerializer, RandomPerguntaSerializer, PerguntaSerializer
 from rest_framework.views import APIView
 
 class StartQuestionario(APIView):
@@ -30,3 +30,10 @@ class QuestionarioPergunta(APIView):
         questionario = Pergunta.objects.filter(questionario__titulo=kwargs['topico'])
         serializer = PerguntaSerializer(questionario, many=True)
         return Response(serializer.data)
+    
+class NodeViewSet(viewsets.ModelViewSet):
+    
+    def get_queryset(self):
+        queryset = Node.objects.all()#filter(noPai = self.kwargs['noPai'])
+        return queryset
+    serializer_class = NodeSerializer

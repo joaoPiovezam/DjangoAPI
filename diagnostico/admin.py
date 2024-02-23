@@ -45,3 +45,13 @@ class RespostaAdmin(admin.ModelAdmin):
         'resposta_texto', 
         'pergunta'
         ]
+ 
+@admin.register(models.Node)   
+class NodeAdmin(admin.ModelAdmin):
+    fields = [
+        'questao',
+        'noPai',
+        'resultado',
+        'resultadoPai',
+        'codigoNode'
+    ]
