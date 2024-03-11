@@ -31,10 +31,14 @@ class Cliente(models.Model):
     bairro = models.CharField(max_length=30)
     cep = models.CharField(max_length=8)
     cidade = models.CharField(max_length=60)
-    estado = models.CharField(max_length=20)
-    telfone = models.CharField(max_length=20)
+    pais = models.CharField(max_length=20)
+    telefone = models.CharField(max_length=20)
     contato = models.CharField(max_length=20)
     email = models.CharField(max_length=30)
+    
+class Fornecedor(models.Model):
+    nomeFornecedor = models.CharField(max_length = 255)
+    
     
    
 class Orcamento(models.Model):
