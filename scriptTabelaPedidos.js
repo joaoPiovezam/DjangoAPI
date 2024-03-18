@@ -1,4 +1,4 @@
-const urlAPI = "http://127.0.0.1:8000/orcamento/1/pedidos/?format=json";
+const urlAPI = "http://127.0.0.1:8000/orcamento/2/pedidos/?format=json";
 
 var  total = 0.0;
 async function carregarDados() {
@@ -26,7 +26,7 @@ carregarDados();
 function popularTabelaCliente1(dados){
     const tabela = document.getElementById("tabela-cliente");
 
-    const orcamento = dados[0].orcamento;
+    const orcamento = dados.results[0].orcamento;
 
     const linha = document.createElement("tr");
     const colunaDataEmissao = document.createElement("td");
@@ -74,7 +74,7 @@ function popularTabelaCliente1(dados){
 function popularTabelaCliente2(dados){
     const tabela = document.getElementById("tabela-cliente");
 
-    const cliente = dados[0].cliente.client;
+    const cliente = dados.results[0].cliente.client;
 
     const linha = document.createElement("tr");
     const colunaNome = document.createElement("td");
@@ -100,7 +100,7 @@ function popularTabelaCliente2(dados){
 function popularTabelaCliente3(dados){
     const tabela = document.getElementById("tabela-cliente");
 
-    const cliente = dados[0].cliente.client;
+    const cliente = dados.results[0].cliente.client;
 
     const linha = document.createElement("tr");
     const colunaEndereco = document.createElement("td");
@@ -144,7 +144,7 @@ function popularTabelaCliente3(dados){
 function popularTabelaCliente4(dados){
     const tabela = document.getElementById("tabela-cliente");
 
-    const cliente = dados[0].cliente.client;
+    const cliente = dados.results[0].cliente.client;
 
     const linha = document.createElement("tr");
     const colunaTelefone = document.createElement("td");
@@ -209,7 +209,7 @@ function popularTabelaPedidos(dados){
     tabela.appendChild(linha);
 
     var i = 1
-    for (const item of dados) {
+    for (const item of dados.results) {
         const linha = document.createElement("tr");
         const colunaItem = document.createElement("td");
         const colunaCodigo = document.createElement("td");
@@ -225,8 +225,8 @@ function popularTabelaPedidos(dados){
         colunaDescricao.textContent = item.peca.descricao;
         colunaQuantidade.textContent = item.quantidade;
         colunaDataEntrega.textContent = formatarData(item.dataEntrega);
-        colulaPrecoUnit.textContent = formatarPreco(item.peca.precoVenda * 1);
-        colunaPreco.textContent = formatarPreco(item.peca.precoVenda * item.quantidade);
+        colulaPrecoUnit.textContent = formatarPreco(item.peca.precoVenda * 1.2);
+        colunaPreco.textContent = formatarPreco(item.peca.precoVenda * item.quantidade * 1.2);
         colunaNcm.textContent = item.peca.ncm;
 
         total += item.peca.precoVenda * item.quantidade;

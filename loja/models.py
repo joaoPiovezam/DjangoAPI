@@ -1,5 +1,8 @@
 from django.db import models
 
+def add_ten():
+    return 1 + 10
+
 class Peca(models.Model):
     RET = (
         ('R', 'R'),
@@ -7,7 +10,9 @@ class Peca(models.Model):
         ('D', 'D')
     )
     codigo = models.CharField(max_length=30)
+    codigoInterno = models.IntegerField(default=add_ten)
     descricao = models.CharField(max_length=30)
+    marca = models.CharField(max_length = 50)
     precoVenda = models.DecimalField( max_digits=15, decimal_places=3)
     precoExportacao = models.DecimalField( max_digits=15, decimal_places=3)
     precoNacional = models.DecimalField( max_digits=15, decimal_places=3)
@@ -24,22 +29,43 @@ class Peca(models.Model):
         return self.descricao
 
 class Cliente(models.Model):
+    Pessoa = (
+        ('f', 'Pessoa Fisica'),
+        ('j', 'Pessoa Juridica'),
+    )
+    tipoPessoa = models.CharField(choices = Pessoa, max_length=1, default = 'j')
     nomeCliente = models.CharField(max_length=50)
     cpfCnpj = models.CharField(max_length=14)
-    rgIE = models.CharField(max_length=20)
     endereco = models.CharField(max_length=50)
-    bairro = models.CharField(max_length=30)
     cep = models.CharField(max_length=8)
     cidade = models.CharField(max_length=60)
     pais = models.CharField(max_length=20)
     telefone = models.CharField(max_length=20)
-    contato = models.CharField(max_length=20)
-    email = models.CharField(max_length=30)
+    site = models.CharField(max_length=20)
+    email = models.EmailField(max_length=30)
+    detalhe = models.TextField()
     
 class Fornecedor(models.Model):
-    nomeFornecedor = models.CharField(max_length = 255)
+    Pessoa = (
+        ('f', 'Pessoa Fisica'),
+        ('j', 'Pessoa Juridica'),
+    )
+    tipoPessoa = models.CharField(choices = Pessoa, max_length=1, default = 'j')
+    nomeFornecedor = models.CharField(max_length=50)
+    cpfCnpj = models.CharField(max_length=14)
+    endereco = models.CharField(max_length=50)
+    cep = models.CharField(max_length=8)
+    cidade = models.CharField(max_length=60)
+    pais = models.CharField(max_length=20)
+    telefone = models.CharField(max_length=20)
+    site = models.CharField(max_length=20)
+    email = models.EmailField(max_length=30)
+    detalhe = models.TextField()
     
-    
+class PecaFornecedor(models.Model):
+    codigo = models.CharField(max_length = 30)
+    peca = models.ForeignKey(Peca, models.DO_NOTHING)
+    fonecedor = models.ForeignKey(Fornecedor, models.DO_NOTHING)
    
 class Orcamento(models.Model):
     entrega = (
@@ -51,14 +77,12 @@ class Orcamento(models.Model):
     tipoEntrega = models.CharField(max_length=1, choices = entrega, blank=False, null=False,default='3') 
     responsavel = models.CharField(max_length=50)
     frete = models.CharField(max_length=30)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Cliente, on_delete=models.DO_NOTHING)
 
 class Pedido(models.Model):
     codigoPedido = models.IntegerField()
-    codigoPeca = models.ForeignKey(Peca, on_delete=models.CASCADE)
-    codigoOrcamento = models.ForeignKey(Orcamento, on_delete=models.CASCADE)
-    codigoCliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    codigoPeca = models.ForeignKey(Peca, on_delete= models.DO_NOTHING)
+    codigoOrcamento = models.ForeignKey(Orcamento, on_delete=models.DO_NOTHING)
+    codigoCliente = models.ForeignKey(Cliente, on_delete=models.DO_NOTHING)
     dataEntrega = models.DateField()
     quantidade = models.IntegerField()
-    def __str__(self):
-        return self.quantidade
