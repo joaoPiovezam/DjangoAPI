@@ -1,6 +1,8 @@
 const urlAPI = "http://127.0.0.1:8000/orcamento/2/pedidos/?format=json";
 
-var  total = 0.0;
+var  precoTotal = 0.0;
+var pesoTotal = 0.0;
+var volumeTotal = 0.0;
 async function carregarDados() {
         const resposta = await fetch(urlAPI);
         const dadosJSON = await resposta.json();
@@ -185,6 +187,8 @@ function popularTabelaPedidos(dados){
     const colulaPrecoUnit = document.createElement("td");
     const colunaPreco = document.createElement("td");
     const colunaNcm = document.createElement("td");
+    const colunaVolume = document.createElement("td");
+    const colunaPeso = document.createElement("td");
     colunaDescricao.setAttribute('width', '188px');
     
 
@@ -195,6 +199,8 @@ function popularTabelaPedidos(dados){
     colunaDataEntrega.textContent = "ENTREGA";
     colulaPrecoUnit.textContent = "PREÇO UN.";
     colunaPreco.textContent = 'PREÇO';
+    colunaVolume.textContent = 'VOLUME';
+    colunaPeso.textContent = 'PESO';
     colunaNcm.textContent = 'NCM';
 
     linha.appendChild(colunaItem);
@@ -205,6 +211,8 @@ function popularTabelaPedidos(dados){
     linha.appendChild(colunaQuantidade);
     linha.appendChild(colulaPrecoUnit);
     linha.appendChild(colunaPreco);
+    linha.appendChild(colunaVolume);
+    linha.appendChild(colunaPeso);
 
     tabela.appendChild(linha);
 
@@ -219,6 +227,8 @@ function popularTabelaPedidos(dados){
         const colulaPrecoUnit = document.createElement("td");
         const colunaPreco = document.createElement("td");
         const colunaNcm = document.createElement("td");
+        const colunaVolume = document.createElement("td");
+        const colunaPeso = document.createElement("td");
 
         colunaItem.textContent = i.toString();
         colunaCodigo.textContent = item.peca.codigo;
@@ -228,8 +238,12 @@ function popularTabelaPedidos(dados){
         colulaPrecoUnit.textContent = formatarPreco(item.peca.precoVenda * 1.2);
         colunaPreco.textContent = formatarPreco(item.peca.precoVenda * item.quantidade * 1.2);
         colunaNcm.textContent = item.peca.ncm;
+        colunaVolume.textContent = item.peca.volume;
+        colunaPeso.textContent = item.peca.peso
 
-        total += item.peca.precoVenda * item.quantidade;
+        precoTotal  += item.peca.precoVenda * item.quantidade;
+        volumeTotal += item.peca.volume     * item.quantidade;
+        pesoTotal   += item.peca.peso       * item.quantidade;        
 
         linha.appendChild(colunaItem);
         linha.appendChild(colunaCodigo);
@@ -239,13 +253,24 @@ function popularTabelaPedidos(dados){
         linha.appendChild(colunaQuantidade);
         linha.appendChild(colulaPrecoUnit);
         linha.appendChild(colunaPreco);
+        linha.appendChild(colunaVolume);
+        linha.appendChild(colunaPeso);
 
         tabela.appendChild(linha);
 
         i++;
       }
       const totalOrcado = document.getElementById("total-orcado");
-      totalOrcado.append('TOTAL = ');
-      totalOrcado.append(formatarPreco(total));
+      const totalPeso = document.getElementById("total-peso");
+      const totalVolume = document.getElementById("total-volume");
+      
+      totalOrcado.append('PREÇO TOTAL  = ');
+      totalOrcado.append(formatarPreco(precoTotal));
+
+      totalVolume.append('VOLUME TOTAL = ');
+      totalVolume.append(formatarPreco(volumeTotal));
+
+      totalPeso.append('PESO TOTAL     = ');
+      totalPeso.append(formatarPreco(pesoTotal));
 
 }

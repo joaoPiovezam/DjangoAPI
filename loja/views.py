@@ -3,8 +3,8 @@ from django.shortcuts import render
 from rest_framework import viewsets, generics, status
 from rest_framework import status
 from rest_framework.decorators import api_view
-from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor
-from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer, PedidoSerializer, ListaPedidoOrcamentoSerializer, FornecedorSerializer
+from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao
+from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer, PedidoSerializer, ListaPedidoOrcamentoSerializer, FornecedorSerializer, PecaFornecedorSerializer, CotacaoSerializer
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -29,13 +29,22 @@ class ClientesViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         return ClienteSerializer
  
-
+ 
+class PecasFornecedoresViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os fornecedores"""
     
+    serializer_class = PecaFornecedorSerializer
+    def get_queryset(self):
+        queryset = PecaFornecedor.objects.all()
+        peca = self.request.query_params.get('peca')
+        if peca is not None:
+            queryset = queryset.filter(peca__codigo=peca)
+        return queryset
+  
 class FornecedoresViewSet(viewsets.ModelViewSet):
     """Exibindo todos os fornecedores"""
     queryset = Fornecedor.objects.all()
     serializer_class = FornecedorSerializer
-    http_method_names = ['get', 'post', 'put', 'path']
     
 class FornecedorList(generics.ListAPIView):
     """Exibindo lista de todos os fornecedores"""
@@ -43,6 +52,13 @@ class FornecedorList(generics.ListAPIView):
     serializer_class = FornecedorSerializer
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('codigo', 'nomeFornecedor')
+    
+class PecaFornecedorList(generics.ListAPIView):
+    """Exibindo lista de todas pecas dos fornecedores"""
+    queryset = PecaFornecedor.objects.all()
+    serializer_class = PecaFornecedorSerializer
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('peca__codigo', 'fornecedor')
     
 class OrcamentoViewSet(viewsets.ModelViewSet):
     """Exibindo todos os orçamentos"""
@@ -63,3 +79,8 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
         queryset = Pedido.objects.filter(codigoOrcamento = self.kwargs['pk'])
         return queryset
     serializer_class = ListaPedidoOrcamentoSerializer
+    
+class CotacaoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as cotações"""
+    queryset = Cotacao.objects.all()
+    serializer_class = CotacaoSerializer

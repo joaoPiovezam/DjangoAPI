@@ -25,6 +25,10 @@ class Peca(models.Model):
     ncm = models.IntegerField()
     gde = models.IntegerField()
 
+    @property
+    def volumePeca(self):
+        return self.comprimento * self.altura * self.largura
+
     def __str__(self):
         return self.descricao
 
@@ -64,19 +68,25 @@ class Fornecedor(models.Model):
     
 class PecaFornecedor(models.Model):
     codigo = models.CharField(max_length = 30)
-    peca = models.ForeignKey(Peca, models.DO_NOTHING)
-    fonecedor = models.ForeignKey(Fornecedor, models.DO_NOTHING)
+    peca = models.ForeignKey(Peca, on_delete = models.DO_NOTHING)
+    preco = models.DecimalField( max_digits=15, decimal_places=3)
+    fonecedor = models.ForeignKey(Fornecedor, on_delete = models.DO_NOTHING)
+    
    
 class Orcamento(models.Model):
     entrega = (
         ('3', 'Transportadora'),
+    )
+    status = (
+        ('1', 'Orçado'),
+        ('2', 'Faturado'),
     )
     codigo = models.IntegerField()
     dataEmissao = models.DateField()
     dataValidade = models.DateField()
     tipoEntrega = models.CharField(max_length=1, choices = entrega, blank=False, null=False,default='3') 
     responsavel = models.CharField(max_length=50)
-    frete = models.CharField(max_length=30)
+    frete = models.DecimalField(max_digits=15, decimal_places=3)
     cliente = models.ForeignKey(Cliente, on_delete=models.DO_NOTHING)
 
 class Pedido(models.Model):
@@ -84,5 +94,12 @@ class Pedido(models.Model):
     codigoPeca = models.ForeignKey(Peca, on_delete= models.DO_NOTHING)
     codigoOrcamento = models.ForeignKey(Orcamento, on_delete=models.DO_NOTHING)
     codigoCliente = models.ForeignKey(Cliente, on_delete=models.DO_NOTHING)
+    dataCriacao = models.DateField(auto_now_add=True, editable=False)
     dataEntrega = models.DateField()
     quantidade = models.IntegerField()
+    
+class Cotacao(models.Model):
+    codigo = models.CharField(max_length = 30)
+    codigoPedido = models.ForeignKey(Pedido, on_delete = models.DO_NOTHING)
+    codigoPecaFornecedor = models.ForeignKey(PecaFornecedor, on_delete = models.DO_NOTHING)
+    
