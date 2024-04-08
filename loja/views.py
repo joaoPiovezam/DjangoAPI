@@ -3,8 +3,8 @@ from django.shortcuts import render
 from rest_framework import viewsets, generics, status
 from rest_framework import status
 from rest_framework.decorators import api_view
-from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao
-from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer, PedidoSerializer, ListaPedidoOrcamentoSerializer, FornecedorSerializer, PecaFornecedorSerializer, CotacaoSerializer
+from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Usuario, CondicaoPagamento, Notificar
+from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer, PedidoSerializer, ListaPedidoOrcamentoSerializer, FornecedorSerializer, PecaFornecedorSerializer, CotacaoSerializer, UsuarioSerializer, CondicaoPagamentoSerializer, NotificarSerializer
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -84,3 +84,18 @@ class CotacaoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as cotações"""
     queryset = Cotacao.objects.all()
     serializer_class = CotacaoSerializer
+    
+class UsuarioViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as cotações"""
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+    
+class CondicaoPagamentoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as cotações"""
+    queryset = CondicaoPagamento.objects.all()
+    serializer_class = CondicaoPagamentoSerializer
+
+class NotificarViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as cotações"""
+    queryset = Notificar.objects.all()
+    serializer_class = NotificarSerializer

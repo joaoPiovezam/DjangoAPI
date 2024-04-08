@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao
+from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Notificar, Usuario, CondicaoPagamento
 
 class PecaSerializer(serializers.ModelSerializer):
     volume = serializers.ReadOnlyField(source='volumePeca')
@@ -15,6 +15,11 @@ class PecaSerializer(serializers.ModelSerializer):
         if codigo:
             queryset = queryset.filter(codigo__icontains=codigo)
         return queryset'''
+        
+class UsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = '__all__'
         
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,12 +39,21 @@ class FornecedorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fornecedor
         fields = '__all__'
+        
+class NotificarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notificar
+        fields = '__all__'
+        
+class CondicaoPagamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CondicaoPagamento
+        fields = '__all__'             
          
 class OrcamentoSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Orcamento
-        fields = '__all__'
+        fields = '__all__'    
         
 class ClienteOrcamentoSerializer(serializers.ModelSerializer):
     client = ClienteSerializer(source = 'cliente')

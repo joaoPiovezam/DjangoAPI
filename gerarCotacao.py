@@ -2,7 +2,7 @@ import os, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setup.settings')
 django.setup()
 import pandas as pd
-from loja.models import Pedido, Peca, Orcamento, Cliente, Cotacao, PecaFornecedor
+from loja.models import Pedido, Cotacao, PecaFornecedor
 
 
 

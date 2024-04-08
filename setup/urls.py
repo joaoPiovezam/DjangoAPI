@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include,  re_path
 from rest_framework import routers
-from loja.views import PecasViewSet, PecaList, ClientesViewSet, OrcamentoViewSet, PedidoViewSet, PedidoOrcamentoViewSet, FornecedorList, FornecedoresViewSet, PecasFornecedoresViewSet, PecaFornecedorList, CotacaoViewSet
+from loja.views import PecasViewSet, PecaList, ClientesViewSet, OrcamentoViewSet, PedidoViewSet, PedidoOrcamentoViewSet, FornecedorList, FornecedoresViewSet, PecasFornecedoresViewSet, PecaFornecedorList, CotacaoViewSet, UsuarioViewSet, NotificarViewSet, CondicaoPagamentoViewSet 
 
 router = routers.DefaultRouter()
 router.register('pecas', PecasViewSet, basename='Pecas')
@@ -11,6 +11,9 @@ router.register('pedidos', PedidoViewSet, basename='Pedidos')
 router.register('fornecedores', FornecedoresViewSet, basename='Fornecedores')
 router.register('pecasFornecedores', PecasFornecedoresViewSet, basename='PecasFornecedores')
 router.register('cotacoes', CotacaoViewSet, basename='Cotacoes')
+router.register('usuarios', UsuarioViewSet, basename='Usuarios')
+router.register('notificar', NotificarViewSet, basename='Notificar')
+router.register('condicoes', CondicaoPagamentoViewSet, basename='Condicoes')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
