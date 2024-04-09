@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Notificar, Usuario, CondicaoPagamento
+from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, Transportadora, PecaFornecedor, Cotacao, Notificar, Usuario, CondicaoPagamento, PedidoCompra, Estoque
 
 class PecaSerializer(serializers.ModelSerializer):
     volume = serializers.ReadOnlyField(source='volumePeca')
@@ -24,6 +24,11 @@ class UsuarioSerializer(serializers.ModelSerializer):
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
+        fields = '__all__'
+
+class TransportadoraSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transportadora
         fields = '__all__'
         
 class PecaFornecedorSerializer(serializers.ModelSerializer):
@@ -77,9 +82,26 @@ class ListaPedidoOrcamentoSerializer(serializers.ModelSerializer):
         
 class CotacaoSerializer(serializers.ModelSerializer):
     pedido = PedidoSerializer(source = 'codigoPedido')
-    pecaFornecedor  = PecaFornecedorSerializer(source =  'codigoPecaFornecedor')
+    pecaFornecedor  = PecaFornecedorSerializer(source = 'codigoPecaFornecedor')
     class Meta:
         model = Cotacao
         fields = '__all__'
         extra_fields = ['pedido','pecaFornecedor']
         
+class PedidoCompraSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PedidoCompra
+        fields = '__all__'
+
+class PedidoCompraAllSerializer(serializers.ModelSerializer):
+    cotacao = CotacaoSerializer()
+    transportadora = TransportadoraSerializer()
+    class Meta:
+        model = PedidoCompra
+        fields = '__all__'
+        extra_fields = ['cotacao', 'transportadora']
+        
+class EstoqueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estoque
+        fields = '__all__'

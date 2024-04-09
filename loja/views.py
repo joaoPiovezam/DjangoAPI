@@ -3,8 +3,8 @@ from django.shortcuts import render
 from rest_framework import viewsets, generics, status
 from rest_framework import status
 from rest_framework.decorators import api_view
-from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Usuario, CondicaoPagamento, Notificar
-from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer, PedidoSerializer, ListaPedidoOrcamentoSerializer, FornecedorSerializer, PecaFornecedorSerializer, CotacaoSerializer, UsuarioSerializer, CondicaoPagamentoSerializer, NotificarSerializer
+from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Usuario, CondicaoPagamento, Notificar, Transportadora, PedidoCompra, Estoque
+from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer, PedidoSerializer, ListaPedidoOrcamentoSerializer, FornecedorSerializer, PecaFornecedorSerializer, CotacaoSerializer, UsuarioSerializer, CondicaoPagamentoSerializer, NotificarSerializer, TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer, EstoqueSerializer
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -81,21 +81,43 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
     serializer_class = ListaPedidoOrcamentoSerializer
     
 class CotacaoViewSet(viewsets.ModelViewSet):
-    """Exibindo todos as cotações"""
+    """Exibindo todas as cotações"""
     queryset = Cotacao.objects.all()
     serializer_class = CotacaoSerializer
     
 class UsuarioViewSet(viewsets.ModelViewSet):
-    """Exibindo todos as cotações"""
+    """Exibindo todos os usuarios"""
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     
 class CondicaoPagamentoViewSet(viewsets.ModelViewSet):
-    """Exibindo todos as cotações"""
+    """Exibindo todas as condicoes"""
     queryset = CondicaoPagamento.objects.all()
     serializer_class = CondicaoPagamentoSerializer
 
 class NotificarViewSet(viewsets.ModelViewSet):
-    """Exibindo todos as cotações"""
+    """Exibindo todas as notificacoes"""
     queryset = Notificar.objects.all()
     serializer_class = NotificarSerializer
+    
+class TransportadoraViewSet(viewsets.ModelViewSet):
+    """Exibindo todas as tranportadoras"""
+    queryset = Transportadora.objects.all()
+    serializer_class = TransportadoraSerializer
+
+class PedidoCompraViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os pedidos de compras"""
+    queryset = PedidoCompra.objects.all()
+    serializer_class = PedidoCompraSerializer
+    
+class PedidoCompraAllViewSet(generics.ListAPIView):
+    """Exibindo todos pedidos de um orcamento de um fornecedor"""
+    def get_queryset(self):
+        queryset = PedidoCompra.objects.filter(cotacao__codigoPedido__codigoOrcamento = self.kwargs['pk'])
+        return queryset
+    serializer_class = PedidoCompraAllSerializer
+    
+class EstoqueViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os pedidos de compras"""
+    queryset = Estoque.objects.all()
+    serializer_class = EstoqueSerializer
