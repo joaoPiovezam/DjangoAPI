@@ -60,7 +60,7 @@ class Cliente(models.Model):
     cidade = models.CharField(max_length = 60)
     pais = models.CharField(max_length = 20)
     telefone = models.CharField(max_length = 20)
-    site = models.CharField(max_length = 20)
+    site = models.CharField(max_length = 200)
     email = models.EmailField(max_length = 30)
     detalhe = models.TextField()
     
@@ -80,7 +80,7 @@ class Fornecedor(models.Model):
     cidade = models.CharField(max_length = 60)
     pais = models.CharField(max_length = 20)
     telefone = models.CharField(max_length = 20)
-    site = models.CharField(max_length = 20)
+    site = models.CharField(max_length = 200)
     email = models.EmailField(max_length = 30)
     detalhe = models.TextField()
     
@@ -92,7 +92,7 @@ class Transportadora(models.Model):
     cidade = models.CharField(max_length = 60)
     pais = models.CharField(max_length = 20)
     telefone = models.CharField(max_length = 20)
-    site = models.CharField(max_length = 20)
+    site = models.CharField(max_length = 200)
     email = models.EmailField(max_length = 30)
     detalhe = models.TextField()
     
@@ -103,7 +103,7 @@ class PecaFornecedor(models.Model):
     codigo = models.CharField(max_length = 30)
     peca = models.ForeignKey(Peca, on_delete = models.DO_NOTHING)
     preco = models.DecimalField( max_digits = 15, decimal_places = 3)
-    fonecedor = models.ForeignKey(Fornecedor, on_delete = models.DO_NOTHING)
+    fornecedor = models.ForeignKey(Fornecedor, on_delete = models.DO_NOTHING)
   
 class Orcamento(models.Model):
     entrega = (
