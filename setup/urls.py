@@ -5,7 +5,7 @@ from loja.views import PecasViewSet, PecaList, ClientesViewSet, TransportadoraVi
 from loja.views import PedidoOrcamentoViewSet, FornecedorList, FornecedoresViewSet, PecasFornecedoresViewSet, PecaFornecedorView
 from loja.views import PecaFornecedorList,PecasFornecedoresView, CotacaoViewSet, CondicaoPagamentoView, CotacaoOrcamentoViewSet
 from loja.views import Cotacao2ViewSet, UsuarioViewSet, NotificarViewSet, NotificarView, CondicaoPagamentoViewSet, PedidoCompraViewSet
-from loja.views import PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView
+from loja.views import PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView, PedidoView
 
 router = routers.DefaultRouter()
 router.register('pecas', PecasViewSet, basename = 'Pecas')
@@ -36,5 +36,6 @@ urlpatterns = [
     path('notificacao/<int:pkOrcamento>/', NotificarView.as_view()),
     path('pedidoCompra/<int:pkOrcamento>/<int:pkFornecedor>', PedidoCompraAllViewSet.as_view()),
     path('peca/<int:pecaId>/fornecedor/<int:fornecedorId>', PecasFornecedoresView.as_view()),
-    path('estoquePecas/', EstoqueView.as_view())
+    path('estoquePecas/', EstoqueView.as_view()),
+    path('pedidoPeca/', PedidoView.as_view())
 ]

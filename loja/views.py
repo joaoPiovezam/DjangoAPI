@@ -4,7 +4,7 @@ from rest_framework import viewsets, generics, status
 from rest_framework import status
 from rest_framework.decorators import api_view
 from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Usuario, CondicaoPagamento, Notificar, Transportadora, PedidoCompra, Estoque
-from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer,ClienteOrcamentoSerializer, PedidoSerializer
+from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer,ClienteOrcamentoSerializer, PedidoSerializer, PedidoPecaSerializer
 from loja.serializer import ListaPedidoOrcamentoSerializer, FornecedorSerializer, PecaFornecedorSerializerV2, PecaFornecedorSerializer
 from loja.serializer import CotacaoSerializer, CotacaoSerializerV2, UsuarioSerializer, CondicaoPagamentoSerializer, NotificarSerializer
 from loja.serializer import TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer, EstoqueSerializer, EstoquePecaSerializer
@@ -94,6 +94,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
     queryset = Pedido.objects.all()
     def get_serializer_class(self):
         return PedidoSerializer
+
+class PedidoView(generics.ListAPIView):
+    """Exibindo todos os pedidos"""
+    queryset = Pedido.objects.all()
+    def get_serializer_class(self):
+        return PedidoPecaSerializer
     
 class PedidoOrcamentoViewSet(generics.ListAPIView):
     """Exibindo todos os pedidos de um orcamento"""
