@@ -190,3 +190,9 @@ class EstoqueView(generics.ListAPIView):
 class PackViewSet(viewsets.ModelViewSet):
     queryset = Pack.objects.all()
     serializer_class = PackSerializer
+
+class PackView(generics.ListAPIView):
+    def get_queryset(self):
+        queryset = Pack.objects.filter(orcamento = self.kwargs['pkOrcamento'])
+        return queryset
+    serializer_class = PackSerializer
