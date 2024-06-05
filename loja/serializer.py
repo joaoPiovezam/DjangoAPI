@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, Transportadora, PecaFornecedor, Cotacao, Notificar, Usuario, CondicaoPagamento, PedidoCompra, Estoque
+from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, Transportadora, PecaFornecedor, Cotacao, Notificar, Usuario
+from loja.models import CondicaoPagamento, PedidoCompra, Estoque, Pack
 
 class PecaSerializer(serializers.ModelSerializer):
     volume = serializers.ReadOnlyField(source='volumePeca')
@@ -138,3 +139,10 @@ class EstoquePecaSerializer(serializers.ModelSerializer):
         model = Estoque
         fields = '__all__'
         extra_fields = ['pedido', 'orcamento']
+
+class PackSerializer(serializers.ModelSerializer):
+    volumePack = serializers.ReadOnlyField(source='volumePacote')
+    class Meta:
+        model = Pack
+        fields = '__all__'
+        extra_fields = ['volumePack']

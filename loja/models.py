@@ -206,3 +206,16 @@ class Estoque(models.Model):
     dataEntrada = models.DateField()
     dataSaida = models.DateField()
     codigoPedido = models.ForeignKey(Pedido, on_delete = models.DO_NOTHING)
+    
+class Pack(models.Model):
+    volume = models.IntegerField()
+    pacote = models.CharField(max_length = 255)
+    comprimento = models.DecimalField( max_digits = 15, decimal_places = 3)
+    largura = models.DecimalField( max_digits = 15, decimal_places = 3)
+    altura = models.DecimalField( max_digits = 15, decimal_places = 3)
+    peso = models.DecimalField( max_digits = 15, decimal_places = 3)
+    orcamento = models.ForeignKey(Orcamento, on_delete = models.DO_NOTHING)
+    
+    @property
+    def volumePacote(self):
+        return self.comprimento * self.altura * self.largura

@@ -3,11 +3,15 @@ from django.shortcuts import render
 from rest_framework import viewsets, generics, status
 from rest_framework import status
 from rest_framework.decorators import api_view
-from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Usuario, CondicaoPagamento, Notificar, Transportadora, PedidoCompra, Estoque
+
+from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Usuario, CondicaoPagamento, Notificar
+from loja.models import Transportadora, PedidoCompra, Estoque, Pack
+
 from loja.serializer import PecaSerializer, ClienteSerializer, OrcamentoSerializer,ClienteOrcamentoSerializer, PedidoSerializer, PedidoPecaSerializer
 from loja.serializer import ListaPedidoOrcamentoSerializer, FornecedorSerializer, PecaFornecedorSerializerV2, PecaFornecedorSerializer
 from loja.serializer import CotacaoSerializer, CotacaoSerializerV2, UsuarioSerializer, CondicaoPagamentoSerializer, NotificarSerializer
-from loja.serializer import TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer, EstoqueSerializer, EstoquePecaSerializer
+from loja.serializer import TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer, EstoqueSerializer, EstoquePecaSerializer, PackSerializer
+
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -182,3 +186,7 @@ class EstoqueView(generics.ListAPIView):
     """Exibindo todos os pedidos de compras"""
     queryset = Estoque.objects.all()
     serializer_class = EstoquePecaSerializer
+    
+class PackViewSet(viewsets.ModelViewSet):
+    queryset = Pack.objects.all()
+    serializer_class = PackSerializer

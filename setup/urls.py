@@ -5,7 +5,7 @@ from loja.views import PecasViewSet, PecaList, ClientesViewSet, TransportadoraVi
 from loja.views import PedidoOrcamentoViewSet, FornecedorList, FornecedoresViewSet, PecasFornecedoresViewSet, PecaFornecedorView
 from loja.views import PecaFornecedorList,PecasFornecedoresView, CotacaoViewSet, CondicaoPagamentoView, CotacaoOrcamentoViewSet
 from loja.views import Cotacao2ViewSet, UsuarioViewSet, NotificarViewSet, NotificarView, CondicaoPagamentoViewSet, PedidoCompraViewSet
-from loja.views import PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView, PedidoView
+from loja.views import PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView, PedidoView, PackViewSet
 
 router = routers.DefaultRouter()
 router.register('pecas', PecasViewSet, basename = 'Pecas')
@@ -23,6 +23,7 @@ router.register('notificar', NotificarViewSet, basename = 'Notificar')
 router.register('condicoes', CondicaoPagamentoViewSet, basename = 'Condicoes')
 router.register('pedidosCompra', PedidoCompraViewSet, basename = 'PedidoCompra')
 router.register('estoque', EstoqueViewSet, basename = 'Estoque')
+router.register('pack', PackViewSet, basename = 'Pack')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
