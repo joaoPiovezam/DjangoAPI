@@ -9,18 +9,26 @@ tabela = pd.read_csv(r'C:\Users\TARS\OneDrive\Documentos\testePecaFornecedor.csv
 
 l = len(tabela)
 fornecedorO = Fornecedor.objects.filter(id = 1).first()
+pecasNaoEncontradas = []
+pecasEncontradas = []
 for i in range(l):
     pecaO = Peca.objects.filter(codigo =  tabela['codigo'][i]).first()
-    pecaFornecedor = PecaFornecedor.objects.filter(fonecedor = fornecedorO).all()
+    pecaFornecedor = PecaFornecedor.objects.filter(fornecedor = fornecedorO).all()
     pecaFornecedor = pecaFornecedor.filter(peca = pecaO ).first()
-    if (pecaFornecedor is None):
-        pf = PecaFornecedor(           
-                codigo = 12,
-                peca = pecaO,
-                preco = tabela['preco\r'][i],
-                fonecedor = fornecedorO
-                )
-        pf.save()
+    if (pecaO is None):
+        pecasNaoEncontradas.append(tabela['codigo'][i])
     else:
-        pecaFornecedor.preco = tabela['preco\r'][i]
-        pecaFornecedor.save()
+        pecasEncontradas.append(tabela['codigo'][i])
+        if (pecaFornecedor is None):
+            pf = PecaFornecedor(           
+                    codigo = 12,
+                    peca = pecaO,
+                    preco = tabela['preco\r'][i],
+                    fornecedor = fornecedorO
+                    )
+            pf.save()
+        else:
+            pecaFornecedor.preco = tabela['preco\r'][i]
+            pecaFornecedor.save()
+
+print("Peças adicionadas : " + '\n' + str(pecasEncontradas) + "\nPeças não encontradas : " + '\n' + str(pecasNaoEncontradas))

@@ -6,7 +6,7 @@ from loja.models import Peca
 
 
 
-tabela = pd.read_csv(r'C:\Users\TARS\OneDrive\Documentos\precos.csv', on_bad_lines='skip', encoding='latin-1', lineterminator='\n')
+tabela = pd.read_csv(r'C:\Users\TARS\OneDrive\Documentos\preco.csv', on_bad_lines='skip', encoding='latin-1', lineterminator='\n', sep = ';')
 
 l = len(tabela)
 for i in range(l):

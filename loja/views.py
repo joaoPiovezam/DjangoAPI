@@ -1,8 +1,10 @@
 from django.shortcuts import render
 
 from rest_framework import viewsets, generics, status
-from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.views import APIView
 
 from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Usuario, CondicaoPagamento, Notificar
 from loja.models import Transportadora, PedidoCompra, Estoque, Pack
@@ -12,8 +14,8 @@ from loja.serializer import ListaPedidoOrcamentoSerializer, FornecedorSerializer
 from loja.serializer import CotacaoSerializer, CotacaoSerializerV2, UsuarioSerializer, CondicaoPagamentoSerializer, NotificarSerializer
 from loja.serializer import TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer, EstoqueSerializer, EstoquePecaSerializer, PackSerializer
 
-from rest_framework.response import Response
-from rest_framework.filters import SearchFilter, OrderingFilter
+import pandas as pd
+import os, django
 
 class PecasViewSet(viewsets.ModelViewSet):
     """Exibindo todas as peças"""
@@ -112,6 +114,8 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
         queryset = Pedido.objects.filter(codigoOrcamento = self.kwargs['pk'])
         return queryset
     serializer_class = ListaPedidoOrcamentoSerializer
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ['codigoPeca__id']
     
 class CotacaoViewSet(viewsets.ModelViewSet):
     """Exibindo todas as cotações"""
@@ -196,3 +200,123 @@ class PackView(generics.ListAPIView):
         queryset = Pack.objects.filter(orcamento = self.kwargs['pkOrcamento'])
         return queryset
     serializer_class = PackSerializer
+
+def addPecas(arquivo):
+    tabela = pd.read_csv(arquivo, on_bad_lines='skip', encoding='latin-1', lineterminator='\n', sep = ';')
+
+    l = len(tabela)
+    for i in range(l):
+        p = Peca(codigo = tabela['codigo'][i], descricao = tabela['descricao'][i], precoVenda = tabela['precoVenda'][i],
+                precoExportacao = tabela['precoExportacao'][i], precoNacional = tabela['precoNacional'][i], ret = tabela['ret'][i],
+                cc = tabela['cc'][i], peso  = tabela['peso'][i], comprimento = tabela['comprimento'][i],
+                largura = tabela['largura'][i], altura = tabela['altura'][i], ncm = tabela['ncm'][i], gde  = tabela['gde'][i])
+    p.save()
+    return "peças adicionadas"
+
+class AddPecasView(APIView):
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
+        result = addPecas(arquivo)
+        return Response(data={result})
+    
+def addPrecosFornecedor(arquivo, fonecedorId):
+    tabela = pd.read_csv(arquivo, on_bad_lines='skip', encoding='latin-1', lineterminator='\n', sep = ';')
+
+    l = len(tabela)
+    fornecedorO = Fornecedor.objects.filter(id = fonecedorId).first()
+    pecasNaoEncontradas = []
+    pecasEncontradas = []
+    for i in range(l):
+        pecaO = Peca.objects.filter(codigo =  tabela['codigo'][i]).first()
+        pecaFornecedor = PecaFornecedor.objects.filter(fornecedor = fornecedorO).all()
+        pecaFornecedor = pecaFornecedor.filter(peca = pecaO ).first()
+        if (pecaO is None):
+            pecasNaoEncontradas.append(tabela['codigo'][i])
+        else:
+            pecasEncontradas.append(tabela['codigo'][i])
+            if (pecaFornecedor is None):
+                pf = PecaFornecedor(           
+                        codigo = 12,
+                        peca = pecaO,
+                        preco = tabela['preco\r'][i],
+                        fornecedor = fornecedorO
+                        )
+                pf.save()
+            else:
+                pecaFornecedor.preco = tabela['preco\r'][i]
+                pecaFornecedor.save()
+
+    return ("Peças adicionadas ao fornecedor : " + str(pecasEncontradas) + "Peças não encontradas : " + str(pecasNaoEncontradas))
+
+class AddPecasFornecedorView(APIView):
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
+        result = addPrecosFornecedor(arquivo, self.kwargs['fornecedorId'])
+        return Response(data={result})
+    
+def addPedidosOrcamento(arquivo, clienteId, orcamentoId):
+    tabela = pd.read_csv(arquivo, on_bad_lines='skip', encoding='latin-1', lineterminator='\n', sep = ';')
+
+    l = len(tabela)
+    pedido = Pedido.objects.last()
+    codigoP = pedido.codigoPedido + 1
+    cliente = Cliente.objects.filter(id = clienteId).first()
+    orcamento = Orcamento.objects.filter(id = orcamentoId).first()
+    pecasEncontradas = []
+    pecasNaoEncontradas = []
+
+    for i in range(l):
+            peca = Peca.objects.filter(codigo =  tabela['codigo'][i]).first()
+            if (peca is None):
+                    pecasNaoEncontradas.append(tabela['codigo'][i])
+            else:
+                    pecasEncontradas.append(tabela['codigo'][i])
+                    p = Pedido(           
+                            codigoPedido = codigoP,
+                            codigoPeca = peca,
+                            codigoOrcamento = orcamento,
+                            codigoCliente = cliente,
+                            dataEntrega = '2024-05-10',
+                            quantidade =  tabela['qtd'][i],
+                            pesoBruto = 10,
+                            volume = 0,
+                            volumeBruto = 10
+                            )
+                    p.save()
+
+    return ("Peças adicionadas : " + str(pecasEncontradas) + "Peças não encontradas : "  + str(pecasNaoEncontradas))
+
+class addPedidosOrcamentoView(APIView):
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
+        result = addPedidosOrcamento(arquivo, self.kwargs['clienteId'], self.kwargs['orcamentoId'])
+        return Response(data={result})
+    
+def gerarCotacao(orcamentoId):
+    pedidos = Pedido.objects.all().filter(codigoOrcamento = orcamentoId)
+    pecasAdicionadas = []
+    pecasNaoAdicionadas = []
+    for pedido in pedidos:
+            pecas = pedido.codigoPeca
+            pecaFornecedor = PecaFornecedor.objects.filter(peca = pecas).order_by('-preco').last()
+            if pecaFornecedor is None:
+                pecasNaoAdicionadas.append(pecas.codigo)
+            else:
+                cotacao = Cotacao(
+                        codigo = 1,
+                        codigoPedido = pedido,
+                        codigoPecaFornecedor = pecaFornecedor
+                )
+                cotacao.save()
+                pecasAdicionadas.append(pecas.codigo + ' - Fonecedor: ' + pecaFornecedor.fornecedor.nomeFornecedor)
+    return 'peças adicionadas: ' + str(pecasAdicionadas) + ' pecas não encontradas: ' + str(pecasNaoAdicionadas)
+    
+            
+class gerarCotacaoView(APIView):
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        result = gerarCotacao(self.kwargs['orcamentoId'])
+        return Response(data={result})
