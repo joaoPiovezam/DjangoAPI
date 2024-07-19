@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'loja',
     'corsheaders',
 ]
@@ -140,6 +141,9 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 ]
 
 REST_FRAMEWORK = {
+    'DEAFAULT_AUTHENTICATION_CLASSES':[
+      'rest_framework.authentication.TokenAuthentication'  
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100,
+    'PAGE_SIZE': 500,
 }

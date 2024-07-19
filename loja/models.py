@@ -1,4 +1,5 @@
 from django.db import models
+from rest_framework.authtoken.models import Token
 
 def add_ten():
     return 1 + 10
@@ -43,9 +44,13 @@ class Usuario(models.Model):
     cidade = models.CharField(max_length = 60)
     pais = models.CharField(max_length = 20)
     telefone = models.CharField(max_length = 20)
+    senha = models.CharField(max_length = 250)
     
     def __str__(self):
         return self.nome
+    
+    def check_password(self, senha):
+        return True
 
 class Cliente(models.Model):
     Pessoa = (

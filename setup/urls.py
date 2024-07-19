@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include,  re_path
 from rest_framework import routers
-from loja.views import PecasViewSet, PecaList, ClientesViewSet, TransportadoraViewSet, OrcamentoViewSet, PedidoViewSet
-from loja.views import PedidoOrcamentoViewSet, FornecedorList, FornecedoresViewSet, PecasFornecedoresViewSet, PecaFornecedorView
-from loja.views import PecaFornecedorList,PecasFornecedoresView, CotacaoViewSet, CondicaoPagamentoView, CotacaoOrcamentoViewSet
-from loja.views import Cotacao2ViewSet, UsuarioViewSet, NotificarViewSet, NotificarView, CondicaoPagamentoViewSet, PedidoCompraViewSet
-from loja.views import PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView, PedidoView, PackViewSet, PackView, AddPecasView, AddPecasFornecedorView
-from loja.views import addPedidosOrcamentoView, gerarCotacaoView
+from loja.views import (PecasViewSet, PecaList, ClientesViewSet, TransportadoraViewSet, OrcamentoViewSet, PedidoViewSet,
+ PedidoOrcamentoViewSet, FornecedorList, FornecedoresViewSet, PecasFornecedoresViewSet, PecaFornecedorView,
+ PecaFornecedorList,PecasFornecedoresView, CotacaoViewSet, CondicaoPagamentoView, CotacaoOrcamentoViewSet,
+ Cotacao2ViewSet, UsuarioViewSet, NotificarViewSet, NotificarView, CondicaoPagamentoViewSet, PedidoCompraViewSet,
+ PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView, PedidoView, PackViewSet, PackView, AddPecasView, AddPecasFornecedorView,
+ addPedidosOrcamentoView, gerarCotacaoView)
+from loja import views
 
 router = routers.DefaultRouter()
 router.register('pecas', PecasViewSet, basename = 'Pecas')
@@ -29,6 +30,9 @@ router.register('pack', PackViewSet, basename = 'Pack')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include(router.urls)),
+    re_path('login', views.login),
+    re_path('signup', views.signup),
+    re_path('test_token', views.test_token),
     path('orcamento/<int:pk>/pedidos/',PedidoOrcamentoViewSet.as_view()),
     path('peca/', PecaList.as_view()),
     path('fornecedor/', FornecedorList.as_view()),

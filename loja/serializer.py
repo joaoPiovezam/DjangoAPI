@@ -1,7 +1,13 @@
 from rest_framework import serializers
 from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, Transportadora, PecaFornecedor, Cotacao, Notificar, Usuario
 from loja.models import CondicaoPagamento, PedidoCompra, Estoque, Pack
+from django.contrib.auth.models import User
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta(object):
+        model = User 
+        fields = ['id', 'username', 'password', 'email']
+        
 class PecaSerializer(serializers.ModelSerializer):
     volume = serializers.ReadOnlyField(source='volumePeca')
     class Meta:
