@@ -36,21 +36,16 @@ class Peca(models.Model):
 class Usuario(models.Model):
     nome = models.CharField(max_length = 250)
     empresa = models.CharField(max_length = 250)
-    email = models.EmailField(max_length = 30)
-    site = models.URLField( max_length = 200)
+    email = models.EmailField(max_length = 250)
     cpfCnpj = models.CharField(max_length = 14)
-    endereco = models.CharField(max_length = 50)
-    cep = models.CharField(max_length = 8)
-    cidade = models.CharField(max_length = 60)
-    pais = models.CharField(max_length = 20)
-    telefone = models.CharField(max_length = 20)
-    senha = models.CharField(max_length = 250)
+    endereco = models.CharField(max_length = 250)
+    cep = models.CharField(max_length = 250)
+    cidade = models.CharField(max_length = 250)
+    pais = models.CharField(max_length = 250)
+    telefone = models.CharField(max_length = 250)
     
     def __str__(self):
         return self.nome
-    
-    def check_password(self, senha):
-        return True
 
 class Cliente(models.Model):
     Pessoa = (
@@ -58,15 +53,15 @@ class Cliente(models.Model):
         ('j', 'Pessoa Juridica'),
     )
     tipoPessoa = models.CharField(choices = Pessoa, max_length = 1, default = 'j')
-    nomeCliente = models.CharField(max_length = 50)
+    nomeCliente = models.CharField(max_length = 250)
     cpfCnpj = models.CharField(max_length = 14)
-    endereco = models.CharField(max_length = 50)
-    cep = models.CharField(max_length = 8)
-    cidade = models.CharField(max_length = 60)
-    pais = models.CharField(max_length = 20)
-    telefone = models.CharField(max_length = 20)
-    site = models.CharField(max_length = 200)
-    email = models.EmailField(max_length = 30)
+    endereco = models.CharField(max_length = 250)
+    cep = models.CharField(max_length = 250)
+    cidade = models.CharField(max_length = 250)
+    pais = models.CharField(max_length = 250)
+    telefone = models.CharField(max_length = 250)
+    site = models.CharField(max_length = 250)
+    email = models.EmailField(max_length = 250)
     detalhe = models.TextField()
     
     def __str__(self):

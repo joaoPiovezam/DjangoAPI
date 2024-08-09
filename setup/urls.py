@@ -7,6 +7,7 @@ from loja.views import (PecasViewSet, PecaList, ClientesViewSet, TransportadoraV
  Cotacao2ViewSet, UsuarioViewSet, NotificarViewSet, NotificarView, CondicaoPagamentoViewSet, PedidoCompraViewSet,
  PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView, PedidoView, PackViewSet, PackView, AddPecasView, AddPecasFornecedorView,
  addPedidosOrcamentoView, gerarCotacaoView)
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from loja import views
 
 router = routers.DefaultRouter()

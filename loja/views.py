@@ -1,13 +1,13 @@
 from django.shortcuts import render
 
-from rest_framework import viewsets, generics, status
+from rest_framework import viewsets, generics, status, permissions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
@@ -22,7 +22,10 @@ from loja.serializer import (UserSerializer, PecaSerializer, UsuarioSerializer, 
 import pandas as pd
 import os, django
 
+from django.http import HttpResponse
+
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def login(request):
     user = get_object_or_404(User, username=request.data['username'])
     if not user.check_password(request.data['password']):
@@ -32,6 +35,7 @@ def login(request):
     return Response({'token': token.key, 'user': serializer.data})
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def signup(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
@@ -44,13 +48,12 @@ def signup(request):
     return Response(serializer.errors, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
-@permission_classes([IsAuthenticated])
 def test_token(request):
     return Response("passed!")
 
 class PecasViewSet(viewsets.ModelViewSet):
     """Exibindo todas as peças"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Peca.objects.all()
     def get_serializer_class(self):
         return PecaSerializer
@@ -58,14 +61,15 @@ class PecasViewSet(viewsets.ModelViewSet):
 
     
 class PecaList(generics.ListAPIView):
+    permission_classes = (permissions.AllowAny, )
     queryset = Peca.objects.all()
     serializer_class = PecaSerializer
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('codigo', 'descricao')
-    
-    
+       
 class ClientesViewSet(viewsets.ModelViewSet):
     """Exibindo todos os clientes"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Cliente.objects.all()
     def get_serializer_class(self):
         return ClienteSerializer
@@ -73,7 +77,7 @@ class ClientesViewSet(viewsets.ModelViewSet):
  
 class PecasFornecedoresViewSet(viewsets.ModelViewSet):
     """Exibindo todos os fornecedores"""
-    
+    permission_classes = (permissions.AllowAny, )
     serializer_class = PecaFornecedorSerializer
     def get_queryset(self):
         queryset = PecaFornecedor.objects.all()
@@ -84,11 +88,13 @@ class PecasFornecedoresViewSet(viewsets.ModelViewSet):
   
 class FornecedoresViewSet(viewsets.ModelViewSet):
     """Exibindo todos os fornecedores"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Fornecedor.objects.all()
     serializer_class = FornecedorSerializer
     
 class FornecedorList(generics.ListAPIView):
     """Exibindo lista de todos os fornecedores"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Fornecedor.objects.all()
     serializer_class = FornecedorSerializer
     filter_backends = (SearchFilter, OrderingFilter)
@@ -96,6 +102,7 @@ class FornecedorList(generics.ListAPIView):
     
 class PecaFornecedorList(generics.ListAPIView):
     """Exibindo lista de todas pecas dos fornecedores"""
+    permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = PecaFornecedor.objects.all()
         if self.kwargs['peca'] != 0:
@@ -109,12 +116,13 @@ class PecaFornecedorList(generics.ListAPIView):
     
 class PecaFornecedorView(viewsets.ModelViewSet):
     """Exibindo lista de todas pecas dos fornecedores"""
+    permission_classes = (permissions.AllowAny, )
     queryset = PecaFornecedor.objects.all()
     serializer_class = PecaFornecedorSerializerV2
     
 class PecasFornecedoresView(generics.ListAPIView):
     """Exibindo peça de um fornecedor"""
-    
+    permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = PecaFornecedor.objects.filter(peca = self.kwargs['pecaId'])
         queryset = queryset.filter(id = self.kwargs['fornecedorId'])
@@ -122,6 +130,7 @@ class PecasFornecedoresView(generics.ListAPIView):
     serializer_class = PecaFornecedorSerializer
     
 class OrcamentoViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.AllowAny, )
     """Exibindo todos os orçamentos"""
     queryset = Orcamento.objects.all()
     def get_serializer_class(self):
@@ -129,19 +138,21 @@ class OrcamentoViewSet(viewsets.ModelViewSet):
     
 class PedidoViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pedidos"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Pedido.objects.all()
     def get_serializer_class(self):
         return PedidoSerializer
 
 class PedidoView(generics.ListAPIView):
     """Exibindo todos os pedidos"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Pedido.objects.all()
     def get_serializer_class(self):
         return PedidoPecaSerializer
-    
+   
 class PedidoOrcamentoViewSet(generics.ListAPIView):
     """Exibindo todos os pedidos de um orcamento"""
-    
+    permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Pedido.objects.filter(codigoOrcamento = self.kwargs['pk'])
         return queryset
@@ -151,11 +162,13 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
     
 class CotacaoViewSet(viewsets.ModelViewSet):
     """Exibindo todas as cotações"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Cotacao.objects.all()
     serializer_class = CotacaoSerializer
 
 class CotacaoOrcamentoViewSet(generics.ListAPIView):
     """Exibindo todas as cotações"""
+    permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Cotacao.objects.filter(codigoPedido__codigoOrcamento = self.kwargs['pk'])
         return queryset
@@ -163,21 +176,25 @@ class CotacaoOrcamentoViewSet(generics.ListAPIView):
 
 class Cotacao2ViewSet(viewsets.ModelViewSet):
     """Exibindo todas as cotações"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Cotacao.objects.all()
     serializer_class = CotacaoSerializerV2
-    
+  
 class UsuarioViewSet(viewsets.ModelViewSet):
     """Exibindo todos os usuarios"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     
 class CondicaoPagamentoViewSet(viewsets.ModelViewSet):
     """Exibindo todas as condicoes"""
+    permission_classes = (permissions.AllowAny, )
     queryset = CondicaoPagamento.objects.all()
     serializer_class = CondicaoPagamentoSerializer
 
 class CondicaoPagamentoView(generics.ListAPIView):
     """Exibindo todas as condicoes"""
+    permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = CondicaoPagamento.objects.filter(orcamento = self.kwargs['pkOrcamento'])
         return queryset
@@ -185,11 +202,13 @@ class CondicaoPagamentoView(generics.ListAPIView):
 
 class NotificarViewSet(viewsets.ModelViewSet):
     """Exibindo todas as notificacoes"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Notificar.objects.all()
     serializer_class = NotificarSerializer
 
 class NotificarView(generics.ListAPIView):
     """Exibindo todas as notificacoes"""
+    permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Notificar.objects.filter(orcamento = self.kwargs['pkOrcamento'])
         return queryset
@@ -197,39 +216,44 @@ class NotificarView(generics.ListAPIView):
     
 class TransportadoraViewSet(viewsets.ModelViewSet):
     """Exibindo todas as tranportadoras"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Transportadora.objects.all()
     serializer_class = TransportadoraSerializer
 
 class PedidoCompraViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pedidos de compras"""
+    permission_classes = (permissions.AllowAny, )
     queryset = PedidoCompra.objects.all()
     serializer_class = PedidoCompraSerializer
     
 class PedidoCompraAllViewSet(generics.ListAPIView):
     """Exibindo todos pedidos de um orcamento de um fornecedor"""
+    permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = PedidoCompra.objects.filter(cotacao__codigoPedido__codigoOrcamento = self.kwargs['pkOrcamento'])
         queryset = queryset.filter(cotacao__codigoPecaFornecedor__fornecedor = self.kwargs['pkFornecedor'])
         return queryset
     serializer_class = PedidoCompraAllSerializer
-    
+        
 class EstoqueViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pedidos de compras"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Estoque.objects.all()
     serializer_class = EstoqueSerializer
-
+    
 class EstoqueView(generics.ListAPIView):
     """Exibindo todos os pedidos de compras"""
+    permission_classes = (permissions.AllowAny, )
     queryset = Estoque.objects.all()
     serializer_class = EstoquePecaSerializer
     
-@authentication_classes([SessionAuthentication, TokenAuthentication])
-@permission_classes([IsAuthenticated])
 class PackViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.AllowAny, )
     queryset = Pack.objects.all()
     serializer_class = PackSerializer
-
+    
 class PackView(generics.ListAPIView):
+    permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Pack.objects.filter(orcamento = self.kwargs['pkOrcamento'])
         return queryset
@@ -248,6 +272,7 @@ def addPecas(arquivo):
     return "peças adicionadas"
 
 class AddPecasView(APIView):
+    permission_classes = (permissions.AllowAny, )
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
@@ -284,6 +309,7 @@ def addPrecosFornecedor(arquivo, fonecedorId):
     return ("Peças adicionadas ao fornecedor : " + str(pecasEncontradas) + "Peças não encontradas : " + str(pecasNaoEncontradas))
 
 class AddPecasFornecedorView(APIView):
+    permission_classes = (permissions.AllowAny, )
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
@@ -323,6 +349,7 @@ def addPedidosOrcamento(arquivo, clienteId, orcamentoId):
     return ("Peças adicionadas : " + str(pecasEncontradas) + "Peças não encontradas : "  + str(pecasNaoEncontradas))
 
 class addPedidosOrcamentoView(APIView):
+    permission_classes = (permissions.AllowAny, )
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
@@ -347,9 +374,9 @@ def gerarCotacao(orcamentoId):
                 cotacao.save()
                 pecasAdicionadas.append(pecas.codigo + ' - Fonecedor: ' + pecaFornecedor.fornecedor.nomeFornecedor)
     return 'peças adicionadas: ' + str(pecasAdicionadas) + ' pecas não encontradas: ' + str(pecasNaoAdicionadas)
-    
-            
+                
 class gerarCotacaoView(APIView):
+    permission_classes = (permissions.AllowAny, )
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         result = gerarCotacao(self.kwargs['orcamentoId'])

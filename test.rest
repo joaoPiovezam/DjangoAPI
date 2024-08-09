@@ -13,3 +13,9 @@ POST http://127.0.0.1:8000/login Content-Type: application/json
 GET http://127.0.0.1:8000/test_token
 Content-Type: application/json
 Authorization: token cd92afbf08548e26b1732b7eb105bd95393398d5
+
+###
+
+GET http://127.0.0.1:8000/pack
+Content-Type: application/json
+Authorization: token cd92afbf08548e26b1732b7eb105bd95393398d5
