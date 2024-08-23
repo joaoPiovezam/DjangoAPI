@@ -1,15 +1,21 @@
 from django.shortcuts import render
 
+from setup import settings
+
 from rest_framework import viewsets, generics, status, permissions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.views import APIView
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication, get_authorization_header
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
+import jwt
+from django.contrib.auth import authenticate
 
 from loja.models import (Peca, Usuario, Cliente, Orcamento, Pedido, Fornecedor, PecaFornecedor, Cotacao, Usuario, CondicaoPagamento, Notificar,
  Transportadora, PedidoCompra, Estoque, Pack)
@@ -30,9 +36,18 @@ def login(request):
     user = get_object_or_404(User, username=request.data['username'])
     if not user.check_password(request.data['password']):
         return Response("missing user", status=status.HTTP_404_NOT_FOUND)
+    user = authenticate(username=request.data['username'], password=request.data['password'])
     token, created = Token.objects.get_or_create(user=user)
     serializer = UserSerializer(user)
-    return Response({'token': token.key, 'user': serializer.data})
+    usuario = Usuario.objects.filter(email = user.email).first()
+    usuarioS = UsuarioSerializer(usuario)
+    #cliente = Cliente.objects.filter(email = user.email)
+    if usuario is None:
+        tipo = "cliente"
+    else:
+        tipo = "usuario"
+        print (usuario.cpfCnpj)
+    return Response({'token': token.key, 'user': serializer.data,'tipo': tipo})
 
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
@@ -51,33 +66,39 @@ def signup(request):
 def test_token(request):
     return Response("passed!")
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class PecasViewSet(viewsets.ModelViewSet):
     """Exibindo todas as peças"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Peca.objects.all()
     def get_serializer_class(self):
         return PecaSerializer
     serializer_class = PecaSerializer
 
-    
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])      
 class PecaList(generics.ListAPIView):
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Peca.objects.all()
     serializer_class = PecaSerializer
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('codigo', 'descricao')
        
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class ClientesViewSet(viewsets.ModelViewSet):
     """Exibindo todos os clientes"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Cliente.objects.all()
     def get_serializer_class(self):
         return ClienteSerializer
  
- 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])   
 class PecasFornecedoresViewSet(viewsets.ModelViewSet):
     """Exibindo todos os fornecedores"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     serializer_class = PecaFornecedorSerializer
     def get_queryset(self):
         queryset = PecaFornecedor.objects.all()
@@ -85,24 +106,30 @@ class PecasFornecedoresViewSet(viewsets.ModelViewSet):
         if peca is not None:
             queryset = queryset.filter(peca__codigo=peca)
         return queryset
-  
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])    
 class FornecedoresViewSet(viewsets.ModelViewSet):
     """Exibindo todos os fornecedores"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Fornecedor.objects.all()
     serializer_class = FornecedorSerializer
-    
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])      
 class FornecedorList(generics.ListAPIView):
     """Exibindo lista de todos os fornecedores"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Fornecedor.objects.all()
     serializer_class = FornecedorSerializer
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('cpfCnpj', 'nomeFornecedor')
-    
+ 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])      
 class PecaFornecedorList(generics.ListAPIView):
     """Exibindo lista de todas pecas dos fornecedores"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = PecaFornecedor.objects.all()
         if self.kwargs['peca'] != 0:
@@ -113,46 +140,89 @@ class PecaFornecedorList(generics.ListAPIView):
     serializer_class = PecaFornecedorSerializer
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ['peca__codigo', 'fornecedor__nomeFornecedor']
-    
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])      
 class PecaFornecedorView(viewsets.ModelViewSet):
     """Exibindo lista de todas pecas dos fornecedores"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = PecaFornecedor.objects.all()
     serializer_class = PecaFornecedorSerializerV2
     
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])      
 class PecasFornecedoresView(generics.ListAPIView):
     """Exibindo peça de um fornecedor"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = PecaFornecedor.objects.filter(peca = self.kwargs['pecaId'])
         queryset = queryset.filter(id = self.kwargs['fornecedorId'])
         return queryset
     serializer_class = PecaFornecedorSerializer
     
+@api_view(['GET']) 
+@permission_classes([IsAuthenticated])
+def OrcamentoView(request):
+    session_key = request.COOKIES.get('sessionid')
+    session = Session.objects.get(session_key=session_key)
+    uid = session.get_decoded().get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    #email = request.COOKIES.get('email')
+    email = user.email
+    orcamentos = Orcamento.objects.filter(cliente__email = email)
+    serializer = OrcamentoSerializer(orcamentos, many=True)
+    return Response(serializer.data)
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])    
 class OrcamentoViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.AllowAny, )
     """Exibindo todos os orçamentos"""
     queryset = Orcamento.objects.all()
     def get_serializer_class(self):
-        return ClienteOrcamentoSerializer #OrcamentoSerializer
+        return ClienteOrcamentoSerializer
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])    
+class OrcamentoClienteViewSet(generics.ListAPIView):
+    """Exibindo todos os orçamentos"""
+    def get_queryset(self):
+        queryset = Orcamento.objects.filter(cliente__email = self.kwargs['email'])
+        return queryset
     
+    def get_serializer_class(self):
+        return ClienteOrcamentoSerializer
+    
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])   
+class OrcamentoListView(generics.ListAPIView):
+    """Exibindo todos os orçamentos"""
+    queryset = Orcamento.objects.all()
+    def get_serializer_class(self):
+        return OrcamentoSerializer
+    
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])      
 class PedidoViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pedidos"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Pedido.objects.all()
     def get_serializer_class(self):
         return PedidoSerializer
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class PedidoView(generics.ListAPIView):
     """Exibindo todos os pedidos"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Pedido.objects.all()
     def get_serializer_class(self):
         return PedidoPecaSerializer
    
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class PedidoOrcamentoViewSet(generics.ListAPIView):
     """Exibindo todos os pedidos de um orcamento"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Pedido.objects.filter(codigoOrcamento = self.kwargs['pk'])
         return queryset
@@ -160,100 +230,130 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ['codigoPeca__id']
     
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class CotacaoViewSet(viewsets.ModelViewSet):
     """Exibindo todas as cotações"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Cotacao.objects.all()
     serializer_class = CotacaoSerializer
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class CotacaoOrcamentoViewSet(generics.ListAPIView):
     """Exibindo todas as cotações"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Cotacao.objects.filter(codigoPedido__codigoOrcamento = self.kwargs['pk'])
         return queryset
     serializer_class = CotacaoSerializer
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class Cotacao2ViewSet(viewsets.ModelViewSet):
     """Exibindo todas as cotações"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Cotacao.objects.all()
     serializer_class = CotacaoSerializerV2
   
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class UsuarioViewSet(viewsets.ModelViewSet):
     """Exibindo todos os usuarios"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class CondicaoPagamentoViewSet(viewsets.ModelViewSet):
     """Exibindo todas as condicoes"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = CondicaoPagamento.objects.all()
     serializer_class = CondicaoPagamentoSerializer
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class CondicaoPagamentoView(generics.ListAPIView):
     """Exibindo todas as condicoes"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = CondicaoPagamento.objects.filter(orcamento = self.kwargs['pkOrcamento'])
         return queryset
     serializer_class = CondicaoPagamentoSerializer
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class NotificarViewSet(viewsets.ModelViewSet):
     """Exibindo todas as notificacoes"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Notificar.objects.all()
     serializer_class = NotificarSerializer
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class NotificarView(generics.ListAPIView):
     """Exibindo todas as notificacoes"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Notificar.objects.filter(orcamento = self.kwargs['pkOrcamento'])
         return queryset
     serializer_class = NotificarSerializer
     
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class TransportadoraViewSet(viewsets.ModelViewSet):
     """Exibindo todas as tranportadoras"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Transportadora.objects.all()
     serializer_class = TransportadoraSerializer
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class PedidoCompraViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pedidos de compras"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = PedidoCompra.objects.all()
     serializer_class = PedidoCompraSerializer
     
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class PedidoCompraAllViewSet(generics.ListAPIView):
     """Exibindo todos pedidos de um orcamento de um fornecedor"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = PedidoCompra.objects.filter(cotacao__codigoPedido__codigoOrcamento = self.kwargs['pkOrcamento'])
         queryset = queryset.filter(cotacao__codigoPecaFornecedor__fornecedor = self.kwargs['pkFornecedor'])
         return queryset
     serializer_class = PedidoCompraAllSerializer
         
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class EstoqueViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pedidos de compras"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Estoque.objects.all()
     serializer_class = EstoqueSerializer
-    
+ 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])      
 class EstoqueView(generics.ListAPIView):
     """Exibindo todos os pedidos de compras"""
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Estoque.objects.all()
     serializer_class = EstoquePecaSerializer
     
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class PackViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     queryset = Pack.objects.all()
     serializer_class = PackSerializer
     
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class PackView(generics.ListAPIView):
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Pack.objects.filter(orcamento = self.kwargs['pkOrcamento'])
         return queryset
@@ -271,8 +371,10 @@ def addPecas(arquivo):
     p.save()
     return "peças adicionadas"
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class AddPecasView(APIView):
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
@@ -308,8 +410,10 @@ def addPrecosFornecedor(arquivo, fonecedorId):
 
     return ("Peças adicionadas ao fornecedor : " + str(pecasEncontradas) + "Peças não encontradas : " + str(pecasNaoEncontradas))
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class AddPecasFornecedorView(APIView):
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
@@ -348,8 +452,10 @@ def addPedidosOrcamento(arquivo, clienteId, orcamentoId):
 
     return ("Peças adicionadas : " + str(pecasEncontradas) + "Peças não encontradas : "  + str(pecasNaoEncontradas))
 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class addPedidosOrcamentoView(APIView):
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         arquivo = 'arquivosCsv/' + self.kwargs['arquivo']
@@ -375,8 +481,10 @@ def gerarCotacao(orcamentoId):
                 pecasAdicionadas.append(pecas.codigo + ' - Fonecedor: ' + pecaFornecedor.fornecedor.nomeFornecedor)
     return 'peças adicionadas: ' + str(pecasAdicionadas) + ' pecas não encontradas: ' + str(pecasNaoAdicionadas)
                 
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
 class gerarCotacaoView(APIView):
-    permission_classes = (permissions.AllowAny, )
+    #permission_classes = (permissions.AllowAny, )
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         result = gerarCotacao(self.kwargs['orcamentoId'])

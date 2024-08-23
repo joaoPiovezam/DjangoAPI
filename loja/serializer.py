@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 from loja.models import Peca, Cliente, Orcamento, Pedido, Fornecedor, Transportadora, PecaFornecedor, Cotacao, Notificar, Usuario
 from loja.models import CondicaoPagamento, PedidoCompra, Estoque, Pack
 from django.contrib.auth.models import User
@@ -71,7 +72,7 @@ class CondicaoPagamentoSerializer(serializers.ModelSerializer):
         model = CondicaoPagamento
         fields = '__all__'             
          
-class OrcamentoSerializer(serializers.ModelSerializer):
+class OrcamentoSerializer(ModelSerializer):
     class Meta:
         model = Orcamento
         fields = '__all__'    

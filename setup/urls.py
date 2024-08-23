@@ -6,7 +6,7 @@ from loja.views import (PecasViewSet, PecaList, ClientesViewSet, TransportadoraV
  PecaFornecedorList,PecasFornecedoresView, CotacaoViewSet, CondicaoPagamentoView, CotacaoOrcamentoViewSet,
  Cotacao2ViewSet, UsuarioViewSet, NotificarViewSet, NotificarView, CondicaoPagamentoViewSet, PedidoCompraViewSet,
  PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView, PedidoView, PackViewSet, PackView, AddPecasView, AddPecasFornecedorView,
- addPedidosOrcamentoView, gerarCotacaoView)
+ addPedidosOrcamentoView, gerarCotacaoView, OrcamentoListView, OrcamentoClienteViewSet)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from loja import views
 
@@ -34,6 +34,9 @@ urlpatterns = [
     re_path('login', views.login),
     re_path('signup', views.signup),
     re_path('test_token', views.test_token),
+    path("orcamento/", OrcamentoListView.as_view()),
+    path("orcamento/<str:email>/", OrcamentoClienteViewSet.as_view()),
+    path("orc/", views.OrcamentoView),
     path('orcamento/<int:pk>/pedidos/',PedidoOrcamentoViewSet.as_view()),
     path('peca/', PecaList.as_view()),
     path('fornecedor/', FornecedorList.as_view()),
