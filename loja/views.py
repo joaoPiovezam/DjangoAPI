@@ -228,7 +228,7 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
         return queryset
     serializer_class = ListaPedidoOrcamentoSerializer
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ['codigoPeca__id']
+    search_fields = ['codigoPeca__codigo']
     
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])  
