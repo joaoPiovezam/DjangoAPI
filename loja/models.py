@@ -105,6 +105,10 @@ class PecaFornecedor(models.Model):
     preco = models.DecimalField( max_digits = 15, decimal_places = 3)
     fornecedor = models.ForeignKey(Fornecedor, on_delete = models.DO_NOTHING)
   
+def add_dez():
+    orcamento = Orcamento.objects.order_by('-codigo').first()
+    return orcamento.codigo + 10
+  
 class Orcamento(models.Model):
     entrega = (
         ('3', 'Transportadora'),
@@ -113,7 +117,7 @@ class Orcamento(models.Model):
         ('1', 'Orçado'),
         ('2', 'Faturado'),
     )
-    codigo = models.IntegerField()
+    codigo = models.IntegerField(default=add_dez)
     dataEmissao = models.DateField()
     dataValidade = models.DateField()
     tipoEntrega = models.CharField(max_length = 1, choices = entrega, blank = False, null = False, default = '3') 
@@ -169,11 +173,6 @@ class CondicaoPagamento(models.Model):
     data = models.DateField()
     total = models.DecimalField(max_digits = 15, decimal_places = 3)
     orcamento = models.ForeignKey(Orcamento, on_delete = models.DO_NOTHING)
-    
-class Cotacao(models.Model):
-    codigo = models.CharField(max_length = 30)
-    codigoPedido = models.ForeignKey(Pedido, on_delete = models.DO_NOTHING)
-    codigoPecaFornecedor = models.ForeignKey(PecaFornecedor, on_delete = models.DO_NOTHING)
 
 class PedidoCompra(models.Model):
     VENCIMENTOS = (
@@ -185,8 +184,9 @@ class PedidoCompra(models.Model):
         ('6', '28/56'),
         ('7', '30/45/60'),
     )
-    cotacao = models.ForeignKey(Cotacao, on_delete = models.DO_NOTHING)
     transportadora = models.ForeignKey(Transportadora, on_delete = models.DO_NOTHING)
+    fornecedor = models.ForeignKey(Fornecedor, on_delete = models.DO_NOTHING)
+    orcamento = models.ForeignKey(Orcamento, on_delete = models.DO_NOTHING)
     dataEmicao = models.DateField(auto_now_add = True)
     operacaoFiscal = models.CharField(max_length = 255)
     vencimento = models.CharField(choices = VENCIMENTOS, max_length = 50)
@@ -195,17 +195,20 @@ class PedidoCompra(models.Model):
     observacoes = models.TextField()
     frete = models.CharField(max_length = 255)
     
+class Cotacao(models.Model):
+    codigoPedido = models.ForeignKey(Pedido, on_delete = models.CASCADE)
+    codigoPecaFornecedor = models.ForeignKey(PecaFornecedor, on_delete = models.DO_NOTHING)
+    
 class Estoque(models.Model):
     STATUS = (
-        ('1', 'a caminho do estoque'),
+        ('1', 'fora de estoque'),
         ('2', 'em estoque'),
-        ('3', 'em separação'),
-        ('4', 'a caminho do cliente'),
-        ('5', 'entregue ao cliente')
+        ('3', 'entregue ao cliente')
     )
     dataEntrada = models.DateField()
     dataSaida = models.DateField()
-    codigoPedido = models.ForeignKey(Pedido, on_delete = models.DO_NOTHING)
+    estado = models.CharField(choices = STATUS, max_length = 50)
+    codigoPedido = models.ForeignKey(Pedido, on_delete = models.CASCADE)
     
 class Pack(models.Model):
     volume = models.IntegerField()

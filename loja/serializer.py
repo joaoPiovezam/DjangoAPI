@@ -110,11 +110,11 @@ class ListaPedidoOrcamentoSerializer(serializers.ModelSerializer):
         
 class CotacaoSerializer(serializers.ModelSerializer):
     pedido = PedidoSerializer(source = 'codigoPedido')
-    pecaFornecedor  = PecaFornecedorSerializer(source = 'codigoPecaFornecedor')
+    pecasFornecedor  = PecaFornecedorSerializer(source = 'codigoPecaFornecedor')
     class Meta:
         model = Cotacao
         fields = '__all__'
-        extra_fields = ['pedido','pecaFornecedor']
+        extra_fields = ['pedido','pecasFornecedor']
 
 class CotacaoSerializerV2(serializers.ModelSerializer):
     class Meta:
@@ -126,14 +126,21 @@ class PedidoCompraSerializer(serializers.ModelSerializer):
         model = PedidoCompra
         fields = '__all__'
 
-class PedidoCompraAllSerializer(serializers.ModelSerializer):
-    cotacao = CotacaoSerializer()
-    transportadora = TransportadoraSerializer()
+class PedidoCompra2Serializer(serializers.ModelSerializer):
     vencimento = serializers.CharField(source='get_vencimento_display')
+    transportadora = TransportadoraSerializer()
     class Meta:
         model = PedidoCompra
         fields = '__all__'
-        extra_fields = ['cotacao', 'transportadora']
+        extra_fields = ['vencimento', 'transportadora']
+
+class PedidoCompraAllSerializer(serializers.ModelSerializer):
+    pedido = PedidoPecaSerializer(source = 'codigoPedido') 
+    pecasFornecedor  = PecaFornecedorSerializer(source = 'codigoPecaFornecedor')
+    class Meta:
+        model = Cotacao
+        fields = '__all__' 
+        extra_fields = ['pedido', 'pecasFornecedor']
         
 class EstoqueSerializer(serializers.ModelSerializer):
     class Meta:

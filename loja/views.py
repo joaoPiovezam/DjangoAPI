@@ -23,7 +23,7 @@ from loja.models import (Peca, Usuario, Cliente, Orcamento, Pedido, Fornecedor, 
 from loja.serializer import (UserSerializer, PecaSerializer, UsuarioSerializer, ClienteSerializer, OrcamentoSerializer,ClienteOrcamentoSerializer, PedidoSerializer, PedidoPecaSerializer,
  ListaPedidoOrcamentoSerializer, FornecedorSerializer, PecaFornecedorSerializerV2, PecaFornecedorSerializer,
  CotacaoSerializer, CotacaoSerializerV2, UsuarioSerializer, CondicaoPagamentoSerializer, NotificarSerializer,
- TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer, EstoqueSerializer, EstoquePecaSerializer, PackSerializer)
+ TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer,PedidoCompra2Serializer, EstoqueSerializer, EstoquePecaSerializer, PackSerializer)
 
 import pandas as pd
 import os, django
@@ -197,6 +197,11 @@ class OrcamentoClienteViewSet(generics.ListAPIView):
 class OrcamentoListView(generics.ListAPIView):
     """Exibindo todos os orçamentos"""
     queryset = Orcamento.objects.all()
+    def post(self, request, *args, **kwargs):
+        serializer = OrcamentoSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.errors, status=status.HTTP_200_OK) 
     def get_serializer_class(self):
         return OrcamentoSerializer
     
@@ -225,6 +230,8 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
     #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Pedido.objects.filter(codigoOrcamento = self.kwargs['pk'])
+        if self.kwargs['volume'] != 0:
+            queryset = queryset.filter(volume = self.kwargs['volume'])
         return queryset
     serializer_class = ListaPedidoOrcamentoSerializer
     filter_backends = (SearchFilter, OrderingFilter)
@@ -250,10 +257,17 @@ class CotacaoOrcamentoViewSet(generics.ListAPIView):
 
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])  
-class Cotacao2ViewSet(viewsets.ModelViewSet):
+class Cotacao2ViewSet(generics.ListAPIView):
     """Exibindo todas as cotações"""
     #permission_classes = (permissions.AllowAny, )
-    queryset = Cotacao.objects.all()
+    def get_queryset(self):
+        queryset = Cotacao.objects.all()
+        return queryset
+    def post(self, request, *args, **kwargs):
+        serializer = CotacaoSerializerV2(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.errors, status=status.HTTP_200_OK)
     serializer_class = CotacaoSerializerV2
   
 @authentication_classes([SessionAuthentication, TokenAuthentication])
@@ -315,6 +329,17 @@ class PedidoCompraViewSet(viewsets.ModelViewSet):
     #permission_classes = (permissions.AllowAny, )
     queryset = PedidoCompra.objects.all()
     serializer_class = PedidoCompraSerializer
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
+class PedidoCompraOrcamentoViewSet(generics.ListAPIView):
+    """Exibindo todos os pedidos de compras"""
+    #permission_classes = (permissions.AllowAny, )
+    def get_queryset(self):
+        queryset = PedidoCompra.objects.filter(orcamento = self.kwargs['pkOrcamento'])
+        queryset = queryset.filter(fornecedor = self.kwargs['pkFornecedor'])
+        return queryset
+    serializer_class = PedidoCompra2Serializer
     
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])  
@@ -322,8 +347,8 @@ class PedidoCompraAllViewSet(generics.ListAPIView):
     """Exibindo todos pedidos de um orcamento de um fornecedor"""
     #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
-        queryset = PedidoCompra.objects.filter(cotacao__codigoPedido__codigoOrcamento = self.kwargs['pkOrcamento'])
-        queryset = queryset.filter(cotacao__codigoPecaFornecedor__fornecedor = self.kwargs['pkFornecedor'])
+        queryset = Cotacao.objects.filter(codigoPedido__codigoOrcamento = self.kwargs['pkOrcamento'])
+        queryset = queryset.filter(codigoPecaFornecedor__fornecedor = self.kwargs['pkFornecedor'])
         return queryset
     serializer_class = PedidoCompraAllSerializer
         
@@ -488,4 +513,30 @@ class gerarCotacaoView(APIView):
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         result = gerarCotacao(self.kwargs['orcamentoId'])
+        return Response(data={result})
+    
+def negativarEstoque(orcamentoId):
+    pedidos = Pedido.objects.all().filter(codigoOrcamento = orcamentoId)
+    pecasAdicionadas = []
+    for pedido in pedidos:
+        print(pedido)
+        peca = Estoque.objects.filter(codigoPedido = pedido).first()
+        if peca is None:
+            estoque = Estoque(
+                    dataEntrada = '2024-01-01',
+                    dataSaida = '2024-01-01',
+                    estado = '1',
+                    codigoPedido = pedido
+            )
+            estoque.save()
+            pecasAdicionadas.append(pedido.codigoPeca)
+    return 'peças adicionadas: ' + str(pecasAdicionadas)
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
+class addEstoqueView(APIView):
+    #permission_classes = (permissions.AllowAny, )
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        result = negativarEstoque(self.kwargs['orcamentoId'])
         return Response(data={result})
