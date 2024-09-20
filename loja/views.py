@@ -232,10 +232,13 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
         queryset = Pedido.objects.filter(codigoOrcamento = self.kwargs['pk'])
         if self.kwargs['volume'] != 0:
             queryset = queryset.filter(volume = self.kwargs['volume'])
+        if self.kwargs['peca'] != 0:
+            queryset = queryset.filter(codigoPeca__id = self.kwargs['peca'])
         return queryset
+        
     serializer_class = ListaPedidoOrcamentoSerializer
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ['codigoPeca__codigo']
+    #search_fields = ['codigoPeca__id']
     
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])  
@@ -265,6 +268,9 @@ class Cotacao2ViewSet(generics.ListAPIView):
         return queryset
     def post(self, request, *args, **kwargs):
         serializer = CotacaoSerializerV2(data = request.data)
+        cotacao = Cotacao.objects.filter(codigoPedido = request.data['codigoPedido']).first()
+        if cotacao is not None:
+            return Response({"pedido já cotado"}, status=status.HTTP_200_OK)
         if serializer.is_valid():
             serializer.save()
         return Response(serializer.errors, status=status.HTTP_200_OK)
@@ -539,4 +545,40 @@ class addEstoqueView(APIView):
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         result = negativarEstoque(self.kwargs['orcamentoId'])
+        return Response(data={result})
+    
+def positivarEstoque(pedidoCompraId):
+    pedidoCompra = PedidoCompra.objects.filter(id = pedidoCompraId).first()
+    
+    cotacoes = Cotacao.objects.filter(codigoPedido__codigoOrcamento = pedidoCompra.orcamento)
+    cotacoes = cotacoes.filter(codigoPecaFornecedor__fornecedor = pedidoCompra.fornecedor)
+
+    pedidos = []
+    
+    for cotacao in cotacoes:
+        pedido = Pedido.objects.all().filter(id = cotacao.codigoPedido.id).first()
+        pedidos.append(pedido)
+        
+    pecasAdicionadas = []
+    for pedido in pedidos:
+        print(pedido)
+        peca = Estoque.objects.filter(codigoPedido = pedido).first()
+        if peca is not None:
+            estoque = Estoque(
+                    dataEntrada = '2024-01-01',
+                    dataSaida = '2024-01-01',
+                    estado = '2',
+                    codigoPedido = pedido
+            )
+            estoque.save()
+            pecasAdicionadas.append(pedido.codigoPeca)
+    return 'peças adicionadas: ' + str(pecasAdicionadas)
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])  
+class AdicionarEstoqueView(APIView):
+    #permission_classes = (permissions.AllowAny, )
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        result = positivarEstoque(self.kwargs['pedidoCompraId'])
         return Response(data={result})
