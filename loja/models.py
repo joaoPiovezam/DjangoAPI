@@ -111,7 +111,17 @@ def add_dez():
   
 class Orcamento(models.Model):
     entrega = (
-        ('3', 'Transportadora'),
+        ('1', 'EXW'),
+        ('2', 'FCA'),
+        ('3', 'FAS'),
+        ('4', 'FOB'),
+        ('5', 'CIF'),
+        ('6', 'CFR'),
+        ('7', 'CTP'),
+        ('8', 'CIP'),
+        ('9', 'DAT'),
+        ('10', 'DAP'),
+        ('11', 'DDP'),
     )
     status = (
         ('1', 'Orçado'),
@@ -120,7 +130,7 @@ class Orcamento(models.Model):
     codigo = models.IntegerField(default=add_dez)
     dataEmissao = models.DateField()
     dataValidade = models.DateField()
-    tipoEntrega = models.CharField(max_length = 1, choices = entrega, blank = False, null = False, default = '3') 
+    tipoEntrega = models.CharField(max_length = 5, choices = entrega, blank = False, null = False, default = '3') 
     responsavel = models.CharField(max_length = 50)
     frete = models.DecimalField(max_digits = 15, decimal_places = 3)
     cliente = models.ForeignKey(Cliente, on_delete = models.DO_NOTHING)
@@ -222,3 +232,8 @@ class Pack(models.Model):
     @property
     def volumePacote(self):
         return self.comprimento * self.altura * self.largura
+    
+class NotaFiscal(models.Model):
+    chave = models.IntegerField()
+    dataEmissao = models.DateField()
+    PedidoCompra = models.ForeignKey(PedidoCompra, on_delete = models.CASCADE)

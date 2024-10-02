@@ -26,6 +26,7 @@ from loja.serializer import (UserSerializer, PecaSerializer, UsuarioSerializer, 
  TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer,PedidoCompra2Serializer, EstoqueSerializer, EstoquePecaSerializer, PackSerializer)
 
 import pandas as pd
+import json
 import os, django
 
 from django.http import HttpResponse
@@ -581,4 +582,63 @@ class AdicionarEstoqueView(APIView):
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         result = positivarEstoque(self.kwargs['pedidoCompraId'])
+        return Response(data={result})
+ 
+ 
+def AddPedidoOrcamento(arquivo, clienteId, orcamentoId):
+    qtdv = arquivo.count(";")
+    partes = arquivo.split(";")
+    codigos = []
+    quantidades = []
+    for parte in partes:
+        pecas =  parte.split(",")
+        codigos.append(pecas[0])
+        quantidades.append(pecas[1])
+    
+    #tabela = json.loads(arquivo)
+
+    l = len(codigos)
+    pedido = Pedido.objects.last()
+    codigoP = pedido.codigoPedido + 1
+    cliente = Cliente.objects.filter(id = clienteId).first()
+    orcamento = Orcamento.objects.filter(id = orcamentoId).first()
+    pecasEncontradas = []
+    pecasNaoEncontradas = []
+    pecasJaAdicionadas = []
+    for i in range(l):
+        peca = Peca.objects.filter(codigo =  codigos[i]).first()
+        pedido = Pedido.objects.filter(codigoOrcamento__id = orcamentoId)
+        pedido = pedido.filter(codigoPeca__codigo = codigos[i]).first()
+        print(peca)
+        if pedido is None:
+            
+            if (peca is None):
+                pecasNaoEncontradas.append(codigos[i])
+            else:
+                pecasEncontradas.append(codigos[i])
+                p = Pedido(           
+                    codigoPedido = codigoP,
+                    codigoPeca = peca,
+                    codigoOrcamento = orcamento,
+                    codigoCliente = cliente,
+                    dataEntrega = '2024-05-10',
+                    quantidade =  quantidades[i],
+                    pesoBruto = 10,
+                    volume = 0,
+                    volumeBruto = 10
+                    )
+                p.save()
+        else:
+            pecasJaAdicionadas.append(codigos[i])
+
+    return ("Peças adicionadas : " + str(pecasEncontradas) +
+            "Peças não encontradas : "  + str(pecasNaoEncontradas) +
+            "Pecas que ja tinham sido adicionadas : " + str(pecasJaAdicionadas))
+    
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+class AddPedidoOrcamentoView(APIView):
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        result = AddPedidoOrcamento(self.kwargs['arquivo'], self.kwargs['clienteId'], self.kwargs['orcamentoId'])
         return Response(data={result})
