@@ -2,7 +2,8 @@ from django.db import models
 from rest_framework.authtoken.models import Token
 
 def add_ten():
-    return 1 + 10
+    peca = Peca.objects.order_by('-codigoInterno').first()
+    return peca.codigoInterno + 10
 
 class Peca(models.Model):
     RET = (

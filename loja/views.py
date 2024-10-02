@@ -26,6 +26,7 @@ from loja.serializer import (UserSerializer, PecaSerializer, UsuarioSerializer, 
  TransportadoraSerializer, PedidoCompraSerializer, PedidoCompraAllSerializer,PedidoCompra2Serializer, EstoqueSerializer, EstoquePecaSerializer, PackSerializer)
 
 import pandas as pd
+import re
 import json
 import os, django
 
@@ -641,4 +642,73 @@ class AddPedidoOrcamentoView(APIView):
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         result = AddPedidoOrcamento(self.kwargs['arquivo'], self.kwargs['clienteId'], self.kwargs['orcamentoId'])
+        return Response(data={result})
+
+def AddPeca(arquivo):
+    partes = arquivo.split(";")
+    codigos = []
+    descricaos = []
+    precoVendas = []
+    precoExportacaos = []
+    precoNacionals = []
+    rets = []
+    ccs = []
+    pesos = []
+    comprimentos = []
+    larguras = []
+    alturas = []
+    ncms = []
+    gdes = []
+    partes.pop(0)
+    for parte in partes:
+        pecas =  parte.split(",")
+        codigos.append(pecas[0])
+        descricaos.append(pecas[1])
+        precoV = re.findall(r'-?\d+\.?\d*', pecas[2])
+        precoVendas.append(precoV[0])
+        precoE = re.findall(r'-?\d+\.?\d*',pecas[3])
+        precoExportacaos.append(precoE[0])
+        precoN = re.findall(r'-?\d+\.?\d*',pecas[4])
+        precoNacionals.append(precoN[0])
+        rets.append(pecas[5])
+        ccs.append(pecas[6])
+        pesos.append(pecas[7])
+        comprimentos.append(pecas[8])
+        larguras.append(pecas[9])
+        alturas.append(pecas[10])
+        ncms.append(pecas[11])
+        gdes.append(pecas[12])
+    
+    pecasAdicionadas = []
+
+    l = len(codigos)
+    for i in range(l-1):
+        peca = Peca(
+            codigo = codigos[i+1],
+            descricao = descricaos[i+1],
+            marca = "john deere",
+            precoVenda = precoVendas[i+1],
+            precoExportacao = precoExportacaos[i+1],
+            precoNacional = precoNacionals[i+1],
+            ret = rets[i+1],
+            cc = ccs[i+1],
+            peso = pesos[i+1],
+            comprimento = comprimentos[i+1],
+            largura = larguras[i+1],
+            altura = alturas[i+1],
+            ncm = ncms[i+1],
+            gde = gdes[i+1]
+        )
+        peca.save()
+        pecasAdicionadas.append(peca.codigo)
+        
+
+    return ("Peças adicionadas : " + pecasAdicionadas)
+    
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+class AddPecaView(APIView):
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        result = AddPeca(self.kwargs['arquivo'])
         return Response(data={result})
