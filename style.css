@@ -1,0 +1,23 @@
+#tabela-pedidos {
+    width: 90%;
+}
+
+#tabela-cliente {
+    width: 90%;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+/*
+.container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+
+
+.table1, .table2 {
+    width: 100%;
+  }

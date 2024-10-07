@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Tabela de dados JSON</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+    <button onclick="gerarPDF()">Gerar PDF</button>
+
+    <script>
+        function gerarPDF() {
+        var element = document.getElementById('orcamento');
+        var options = {
+            margin: 10,
+            filename: 'meu-pdf.pdf',
+            image: {
+            type: 'jpeg',
+            quality: 1
+            },
+            html2canvas: {
+            scale: 2
+            }
+        };
+
+        html2pdf().from(element).set(options).save();
+        }
+    </script>
+    <div class = 'contanier' id = 'orcamento'>
+        <table id = "tabela">
+            <div id="tabela-cliente"></div>
+            <div id="tabela-pedidos"></div>
+        </table>
+        <script src="scriptTabelaPedidos.js"></script>
+        <div id="total-orcado"></div>
+        <div id="total-volume"></div>
+        <div id="total-peso"></div>
+    </div>
+
+
+</body>
+</html>
