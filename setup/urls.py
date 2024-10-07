@@ -7,7 +7,7 @@ from loja.views import (PecasViewSet, PecaList, ClientesViewSet, TransportadoraV
  Cotacao2ViewSet, UsuarioViewSet, NotificarViewSet, NotificarView, CondicaoPagamentoViewSet, PedidoCompraViewSet,PedidoCompraOrcamentoViewSet,
  PedidoCompraAllViewSet, EstoqueViewSet, EstoqueView, PedidoView, PackViewSet, PackView, AddPecasView, AddPecasFornecedorView,
  addPedidosOrcamentoView, gerarCotacaoView, OrcamentoListView, OrcamentoClienteViewSet, addEstoqueView, AdicionarEstoqueView, AddPedidoOrcamentoView,
- AddPecaView)
+ AddPecaView, AddPecaFornecedorView)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from loja import views
 
@@ -40,6 +40,7 @@ urlpatterns = [
     path("orc/", views.OrcamentoView),
     path('orcamento/<int:pk>/pedidos/<int:volume>/<int:peca>/',PedidoOrcamentoViewSet.as_view()),
     path('peca/', PecaList.as_view()),
+    path('peca/<int:codigo>/', PecaList.as_view()),
     path('fornecedor/', FornecedorList.as_view()),
     path('pecaFornecedor/<int:peca>/<int:fornecedor>/', PecaFornecedorList.as_view()),
     path('cotacoes/', Cotacao2ViewSet.as_view()),
@@ -59,5 +60,6 @@ urlpatterns = [
     path('addEstoque/<int:orcamentoId>',addEstoqueView().as_view()),
     path('adicionarEstoqueView/<int:pedidoCompraId>',AdicionarEstoqueView.as_view()),    
     path('AddPedidoOrcamentoView/<str:arquivo>/<int:clienteId>/<int:orcamentoId>/',AddPedidoOrcamentoView.as_view()),   
-    path('AddPeca/<str:arquivo>/',AddPecaView.as_view()),   
+    path('AddPeca/<str:arquivo>/',AddPecaView.as_view()),
+    path('addPecaFornecedor/<str:arquivo>/<int:fornecedor>/',AddPecaFornecedorView.as_view())
 ]

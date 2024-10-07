@@ -105,6 +105,7 @@ class PecaFornecedor(models.Model):
     peca = models.ForeignKey(Peca, on_delete = models.DO_NOTHING)
     preco = models.DecimalField( max_digits = 15, decimal_places = 3)
     fornecedor = models.ForeignKey(Fornecedor, on_delete = models.DO_NOTHING)
+    data_atualizacao = models.DateTimeField(auto_now=True)
   
 def add_dez():
     orcamento = Orcamento.objects.order_by('-codigo').first()

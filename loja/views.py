@@ -82,7 +82,11 @@ class PecasViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])      
 class PecaList(generics.ListAPIView):
     #permission_classes = (permissions.AllowAny, )
-    queryset = Peca.objects.all()
+    def get_queryset(self):
+        queryset = Peca.objects.all()
+        if self.kwargs['codigo'] != 0: 
+            queryset = queryset.filter(codigo = self.kwargs['codigo'])
+        return queryset
     serializer_class = PecaSerializer
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('codigo', 'descricao')
@@ -157,8 +161,9 @@ class PecasFornecedoresView(generics.ListAPIView):
     """Exibindo peça de um fornecedor"""
     #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
-        queryset = PecaFornecedor.objects.filter(peca = self.kwargs['pecaId'])
-        queryset = queryset.filter(id = self.kwargs['fornecedorId'])
+        queryset = PecaFornecedor.objects.all()
+        queryset = queryset.filter(peca__id = self.kwargs['pecaId'])
+        queryset = queryset.filter(fornecedor__id  = self.kwargs['fornecedorId'])
         return queryset
     serializer_class = PecaFornecedorSerializer
     
@@ -680,30 +685,39 @@ def AddPeca(arquivo):
         gdes.append(pecas[12])
     
     pecasAdicionadas = []
+    pecasAtualizadas = []
 
     l = len(codigos)
     for i in range(l-1):
-        peca = Peca(
-            codigo = codigos[i+1],
-            descricao = descricaos[i+1],
-            marca = "john deere",
-            precoVenda = precoVendas[i+1],
-            precoExportacao = precoExportacaos[i+1],
-            precoNacional = precoNacionals[i+1],
-            ret = rets[i+1],
-            cc = ccs[i+1],
-            peso = pesos[i+1],
-            comprimento = comprimentos[i+1],
-            largura = larguras[i+1],
-            altura = alturas[i+1],
-            ncm = ncms[i+1],
-            gde = gdes[i+1]
-        )
-        peca.save()
-        pecasAdicionadas.append(peca.codigo)
+        pecas = Peca.objects.filter(codigo = codigos[i+1]).first()
+        if pecas is None:
+            peca = Peca(
+                codigo = codigos[i+1],
+                descricao = descricaos[i+1],
+                marca = "john deere",
+                precoVenda = precoVendas[i+1],
+                precoExportacao = precoExportacaos[i+1],
+                precoNacional = precoNacionals[i+1],
+                ret = rets[i+1],
+                cc = ccs[i+1],
+                peso = pesos[i+1],
+                comprimento = comprimentos[i+1],
+                largura = larguras[i+1],
+                altura = alturas[i+1],
+                ncm = ncms[i+1],
+                gde = gdes[i+1]
+            )
+            peca.save()
+            pecasAdicionadas.append(peca.codigo)
+        else:
+            pecas.precoExportacao = precoExportacaos[i+1]
+            pecas.precoVenda = precoVendas[i+1]
+            pecas.precoNacional = precoNacionals[i+1]
+            pecas.save()
+            pecasAtualizadas.append(pecas)
         
 
-    return ("Peças adicionadas : " + pecasAdicionadas)
+    return ("Peças adicionadas : " + str(pecasAdicionadas) + " - Pecas atualizadas : " + str(pecasAtualizadas))
     
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -711,4 +725,49 @@ class AddPecaView(APIView):
     http_method_names = ['get', 'head']
     def get(self, request, *args, **kwargs):
         result = AddPeca(self.kwargs['arquivo'])
+        return Response(data={result})
+    
+def AddPecaFornecedor(arquivo, fornecedorId):
+    partes = arquivo.split(";")
+    codigos = []
+    pecas = []
+    precos = []
+    fornecedorObj = Fornecedor.objects.filter(id = fornecedorId).first()
+    partes.pop(0)
+    for parte in partes:
+        linha =  parte.split(",")
+        codigos.append(linha[0])
+        peca = Peca.objects.filter(codigo = linha[1]).first()
+        pecas.append(peca)
+        precos.append(linha[2])
+    
+    pecasAdicionadas = []
+    pecasAtualizadas = []
+
+    l = len(codigos)
+    for i in range(l-1):
+        pecasFornecedor = PecaFornecedor.objects.filter(peca = pecas[i+1]).first()
+        if pecasFornecedor is None:
+            pecaFornecedor = PecaFornecedor(
+                codigo = codigos[i+1],
+                peca = pecas[i+1],
+                preco = precos[i+1],
+                fornecedor = fornecedorObj
+            )
+            pecaFornecedor.save()
+            pecasAdicionadas.append(pecas[i+1])
+        else:
+            pecasFornecedor.preco = precos[i+1]
+            pecasFornecedor.save()
+            pecasAtualizadas.append(pecas[i+1])
+        
+
+    return ("Peças adicionadas : " + str(pecasAdicionadas) + "Peças atualizadas: " + str(pecasAtualizadas) )
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+class AddPecaFornecedorView(APIView):
+    http_method_names = ['get', 'head']
+    def get(self, request, *args, **kwargs):
+        result = AddPecaFornecedor(self.kwargs['arquivo'], self.kwargs['fornecedor'])
         return Response(data={result})
