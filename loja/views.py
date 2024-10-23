@@ -236,11 +236,11 @@ class PedidoOrcamentoViewSet(generics.ListAPIView):
     """Exibindo todos os pedidos de um orcamento"""
     #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
-        queryset = Pedido.objects.filter(codigoOrcamento = self.kwargs['pk'])
+        queryset = Pedido.objects.filter(orcamento = self.kwargs['pk'])
         if self.kwargs['volume'] != 0:
             queryset = queryset.filter(volume = self.kwargs['volume'])
         if self.kwargs['peca'] != 0:
-            queryset = queryset.filter(codigoPeca__id = self.kwargs['peca'])
+            queryset = queryset.filter(peca__id = self.kwargs['peca'])
         return queryset
         
     serializer_class = ListaPedidoOrcamentoSerializer
@@ -261,7 +261,7 @@ class CotacaoOrcamentoViewSet(generics.ListAPIView):
     """Exibindo todas as cotações"""
     #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
-        queryset = Cotacao.objects.filter(codigoPedido__codigoOrcamento = self.kwargs['pk'])
+        queryset = Cotacao.objects.filter(pedido__orcamento = self.kwargs['pk'])
         return queryset
     serializer_class = CotacaoSerializer
 
@@ -275,7 +275,7 @@ class Cotacao2ViewSet(generics.ListAPIView):
         return queryset
     def post(self, request, *args, **kwargs):
         serializer = CotacaoSerializerV2(data = request.data)
-        cotacao = Cotacao.objects.filter(codigoPedido = request.data['codigoPedido']).first()
+        cotacao = Cotacao.objects.filter(pedido = request.data['codigoPedido']).first()
         if cotacao is not None:
             return Response({"pedido já cotado"}, status=status.HTTP_200_OK)
         if serializer.is_valid():
@@ -360,8 +360,8 @@ class PedidoCompraAllViewSet(generics.ListAPIView):
     """Exibindo todos pedidos de um orcamento de um fornecedor"""
     #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
-        queryset = Cotacao.objects.filter(codigoPedido__codigoOrcamento = self.kwargs['pkOrcamento'])
-        queryset = queryset.filter(codigoPecaFornecedor__fornecedor = self.kwargs['pkFornecedor'])
+        queryset = Cotacao.objects.filter(pedido__orcamento = self.kwargs['pkOrcamento'])
+        queryset = queryset.filter(pecafornecedor__fornecedor = self.kwargs['pkFornecedor'])
         return queryset
     serializer_class = PedidoCompraAllSerializer
         
@@ -463,7 +463,7 @@ def addPedidosOrcamento(arquivo, clienteId, orcamentoId):
 
     l = len(tabela)
     pedido = Pedido.objects.last()
-    codigoP = pedido.codigoPedido + 1
+    codigoP = pedido.codigo_pedido + 1
     cliente = Cliente.objects.filter(id = clienteId).first()
     orcamento = Orcamento.objects.filter(id = orcamentoId).first()
     pecasEncontradas = []
@@ -476,15 +476,15 @@ def addPedidosOrcamento(arquivo, clienteId, orcamentoId):
             else:
                     pecasEncontradas.append(tabela['codigo'][i])
                     p = Pedido(           
-                            codigoPedido = codigoP,
-                            codigoPeca = peca,
-                            codigoOrcamento = orcamento,
-                            codigoCliente = cliente,
-                            dataEntrega = '2024-05-10',
+                            codigo_pedido = codigoP,
+                            peca = peca,
+                            orcamento = orcamento,
+                            cliente = cliente,
+                            data_entrega = '2024-05-10',
                             quantidade =  tabela['qtd'][i],
-                            pesoBruto = 10,
+                            peso_bruto = 10,
                             volume = 0,
-                            volumeBruto = 10
+                            volume_bruto = 10
                             )
                     p.save()
 
@@ -501,7 +501,7 @@ class addPedidosOrcamentoView(APIView):
         return Response(data={result})
     
 def gerarCotacao(orcamentoId):
-    pedidos = Pedido.objects.all().filter(codigoOrcamento = orcamentoId)
+    pedidos = Pedido.objects.all().filter(orcamento = orcamentoId)
     pecasAdicionadas = []
     pecasNaoAdicionadas = []
     for pedido in pedidos:
@@ -529,7 +529,7 @@ class gerarCotacaoView(APIView):
         return Response(data={result})
     
 def negativarEstoque(orcamentoId):
-    pedidos = Pedido.objects.all().filter(codigoOrcamento = orcamentoId)
+    pedidos = Pedido.objects.all().filter(orcamento = orcamentoId)
     pecasAdicionadas = []
     for pedido in pedidos:
         print(pedido)
@@ -557,28 +557,28 @@ class addEstoqueView(APIView):
 def positivarEstoque(pedidoCompraId):
     pedidoCompra = PedidoCompra.objects.filter(id = pedidoCompraId).first()
     
-    cotacoes = Cotacao.objects.filter(codigoPedido__codigoOrcamento = pedidoCompra.orcamento)
-    cotacoes = cotacoes.filter(codigoPecaFornecedor__fornecedor = pedidoCompra.fornecedor)
+    cotacoes = Cotacao.objects.filter(pedido__orcamento = pedidoCompra.orcamento)
+    cotacoes = cotacoes.filter(pecafornecedor__fornecedor = pedidoCompra.fornecedor)
 
     pedidos = []
     
     for cotacao in cotacoes:
-        pedido = Pedido.objects.all().filter(id = cotacao.codigoPedido.id).first()
+        pedido = Pedido.objects.all().filter(id = cotacao.pedido.id).first()
         pedidos.append(pedido)
         
     pecasAdicionadas = []
     for pedido in pedidos:
         print(pedido)
-        peca = Estoque.objects.filter(codigoPedido = pedido).first()
+        peca = Estoque.objects.filter(pedido = pedido).first()
         if peca is not None:
             estoque = Estoque(
-                    dataEntrada = '2024-01-01',
-                    dataSaida = '2024-01-01',
+                    data_entrada = '2024-01-01',
+                    data_saida = '2024-01-01',
                     estado = '2',
-                    codigoPedido = pedido
+                    pedido = pedido
             )
             estoque.save()
-            pecasAdicionadas.append(pedido.codigoPeca)
+            pecasAdicionadas.append(pedido.peca)
     return 'peças adicionadas: ' + str(pecasAdicionadas)
 
 @authentication_classes([SessionAuthentication, TokenAuthentication])
@@ -613,8 +613,8 @@ def AddPedidoOrcamento(arquivo, clienteId, orcamentoId):
     pecasJaAdicionadas = []
     for i in range(l):
         peca = Peca.objects.filter(codigo =  codigos[i]).first()
-        pedido = Pedido.objects.filter(codigoOrcamento__id = orcamentoId)
-        pedido = pedido.filter(codigoPeca__codigo = codigos[i]).first()
+        pedido = Pedido.objects.filter(orcamento__id = orcamentoId)
+        pedido = pedido.filter(peca__codigo = codigos[i]).first()
         print(peca)
         if pedido is None:
             
@@ -623,15 +623,15 @@ def AddPedidoOrcamento(arquivo, clienteId, orcamentoId):
             else:
                 pecasEncontradas.append(codigos[i])
                 p = Pedido(           
-                    codigoPedido = codigoP,
-                    codigoPeca = peca,
-                    codigoOrcamento = orcamento,
-                    codigoCliente = cliente,
-                    dataEntrega = '2024-05-10',
+                    codigo_pedido = codigoP,
+                    peca = peca,
+                    orcamento = orcamento,
+                    cliente = cliente,
+                    data_entrega = '2024-05-10',
                     quantidade =  quantidades[i],
-                    pesoBruto = 10,
+                    peso_bruto = 10,
                     volume = 0,
-                    volumeBruto = 10
+                    volume_bruto = 10
                     )
                 p.save()
         else:

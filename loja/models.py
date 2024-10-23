@@ -2,8 +2,10 @@ from django.db import models
 from rest_framework.authtoken.models import Token
 
 def add_ten():
-    peca = Peca.objects.order_by('-codigoInterno').first()
-    return peca.codigoInterno + 10
+    peca = Peca.objects.order_by('-codigo_interno').first()
+    if peca is None:
+        return 10
+    return peca.codigo_interno + 10
 
 class Peca(models.Model):
     RET = (
@@ -12,12 +14,12 @@ class Peca(models.Model):
         ('D', 'D')
     )
     codigo = models.CharField(max_length = 30)
-    codigoInterno = models.IntegerField(default = add_ten)
+    codigo_interno = models.IntegerField(default = add_ten)
     descricao = models.CharField(max_length = 30)
     marca = models.CharField(max_length = 50)
-    precoVenda = models.DecimalField( max_digits = 15, decimal_places = 3)
-    precoExportacao = models.DecimalField( max_digits = 15, decimal_places = 3)
-    precoNacional = models.DecimalField( max_digits = 15, decimal_places = 3)
+    preco_venda = models.DecimalField( max_digits = 15, decimal_places = 3)
+    preco_exportacao = models.DecimalField( max_digits = 15, decimal_places = 3)
+    preco_nacional = models.DecimalField( max_digits = 15, decimal_places = 3)
     ret = models.CharField(max_length = 1, choices = RET, blank = False, null = False, default = 'R')
     cc = models.IntegerField()
     peso = models.DecimalField( max_digits = 15, decimal_places = 3)
@@ -38,7 +40,7 @@ class Usuario(models.Model):
     nome = models.CharField(max_length = 250)
     empresa = models.CharField(max_length = 250)
     email = models.EmailField(max_length = 250)
-    cpfCnpj = models.CharField(max_length = 14)
+    cpfcnpj = models.CharField(max_length = 14)
     endereco = models.CharField(max_length = 250)
     cep = models.CharField(max_length = 250)
     cidade = models.CharField(max_length = 250)
@@ -53,9 +55,9 @@ class Cliente(models.Model):
         ('f', 'Pessoa Fisica'),
         ('j', 'Pessoa Juridica'),
     )
-    tipoPessoa = models.CharField(choices = Pessoa, max_length = 1, default = 'j')
-    nomeCliente = models.CharField(max_length = 250)
-    cpfCnpj = models.CharField(max_length = 14)
+    tipo_pessoa = models.CharField(choices = Pessoa, max_length = 1, default = 'j')
+    nome_cliente = models.CharField(max_length = 250)
+    cpfcnpj = models.CharField(max_length = 14)
     endereco = models.CharField(max_length = 250)
     cep = models.CharField(max_length = 250)
     cidade = models.CharField(max_length = 250)
@@ -73,9 +75,9 @@ class Fornecedor(models.Model):
         ('f', 'Pessoa Fisica'),
         ('j', 'Pessoa Juridica'),
     )
-    tipoPessoa = models.CharField(choices = Pessoa, max_length = 1, default = 'j')
-    nomeFornecedor = models.CharField(max_length = 50)
-    cpfCnpj = models.CharField(max_length = 14)
+    tipo_pessoa = models.CharField(choices = Pessoa, max_length = 1, default = 'j')
+    nome_fornecedor = models.CharField(max_length = 50)
+    cpfcnpj = models.CharField(max_length = 14)
     endereco = models.CharField(max_length = 50)
     cep = models.CharField(max_length = 8)
     cidade = models.CharField(max_length = 60)
@@ -109,6 +111,8 @@ class PecaFornecedor(models.Model):
   
 def add_dez():
     orcamento = Orcamento.objects.order_by('-codigo').first()
+    if orcamento is None:
+        return 370
     return orcamento.codigo + 10
   
 class Orcamento(models.Model):
@@ -130,18 +134,18 @@ class Orcamento(models.Model):
         ('2', 'Faturado'),
     )
     codigo = models.IntegerField(default=add_dez)
-    dataEmissao = models.DateField()
-    dataValidade = models.DateField()
-    tipoEntrega = models.CharField(max_length = 5, choices = entrega, blank = False, null = False, default = '3') 
+    data_emissao = models.DateField()
+    data_validade = models.DateField()
+    tipo_entrega = models.CharField(max_length = 5, choices = entrega, blank = False, null = False, default = '3') 
     responsavel = models.CharField(max_length = 50)
     frete = models.DecimalField(max_digits = 15, decimal_places = 3)
     cliente = models.ForeignKey(Cliente, on_delete = models.DO_NOTHING)
-    marcasEmbarque = models.CharField(max_length = 250)
-    nomeEntrega = models.CharField(max_length = 250)
-    cnpjEntrega = models.CharField(max_length = 250)
-    enderecoEntrega = models.CharField(max_length = 250)
-    cidadeEntrega = models.CharField(max_length = 250)
-    paisEntrega = models.CharField(max_length = 250)
+    marcas_embarque = models.CharField(max_length = 250)
+    nome_entrega = models.CharField(max_length = 250)
+    cnpj_entrega = models.CharField(max_length = 250)
+    endereco_entrega = models.CharField(max_length = 250)
+    cidade_entrega = models.CharField(max_length = 250)
+    pais_entrega = models.CharField(max_length = 250)
     
     def __str__(self):
         return str(self.codigo)
@@ -158,15 +162,15 @@ class Pedido(models.Model):
         ('2', 'Comprado'),
         
     )
-    codigoPedido = models.IntegerField()
-    codigoPeca = models.ForeignKey(Peca, on_delete = models.DO_NOTHING)
-    codigoOrcamento = models.ForeignKey(Orcamento, on_delete = models.DO_NOTHING)
-    codigoCliente = models.ForeignKey(Cliente, on_delete = models.DO_NOTHING)
-    dataCriacao = models.DateField(auto_now_add = True, editable = False)
-    dataEntrega = models.DateField()
+    codigo_pedido = models.IntegerField()
+    peca = models.ForeignKey(Peca, on_delete = models.DO_NOTHING)
+    orcamento = models.ForeignKey(Orcamento, on_delete = models.DO_NOTHING)
+    cliente = models.ForeignKey(Cliente, on_delete = models.DO_NOTHING)
+    data_criacao = models.DateField(auto_now_add = True, editable = False)
+    data_entrega = models.DateField()
     quantidade = models.IntegerField()
-    pesoBruto = models.DecimalField(max_digits = 15, decimal_places=3)
-    volumeBruto = models.DecimalField(max_digits = 15, decimal_places=3)
+    peso_bruto = models.DecimalField(max_digits = 15, decimal_places=3)
+    volume_bruto = models.DecimalField(max_digits = 15, decimal_places=3)
     unidade = models.CharField(max_length = 255)
     pacote = models.CharField(max_length = 255)
     volume = models.IntegerField()
@@ -199,8 +203,8 @@ class PedidoCompra(models.Model):
     transportadora = models.ForeignKey(Transportadora, on_delete = models.DO_NOTHING)
     fornecedor = models.ForeignKey(Fornecedor, on_delete = models.DO_NOTHING)
     orcamento = models.ForeignKey(Orcamento, on_delete = models.DO_NOTHING)
-    dataEmicao = models.DateField(auto_now_add = True)
-    operacaoFiscal = models.CharField(max_length = 255)
+    data_emissao = models.DateField(auto_now_add = True)
+    operacao_fiscal = models.CharField(max_length = 255)
     vencimento = models.CharField(choices = VENCIMENTOS, max_length = 50)
     comprador = models.CharField(max_length = 255)
     email = models.EmailField(max_length = 255)
@@ -208,8 +212,8 @@ class PedidoCompra(models.Model):
     frete = models.CharField(max_length = 255)
     
 class Cotacao(models.Model):
-    codigoPedido = models.ForeignKey(Pedido, on_delete = models.CASCADE)
-    codigoPecaFornecedor = models.ForeignKey(PecaFornecedor, on_delete = models.DO_NOTHING)
+    pedido = models.ForeignKey(Pedido, on_delete = models.CASCADE)
+    pecafornecedor = models.ForeignKey(PecaFornecedor, on_delete = models.DO_NOTHING)
     
 class Estoque(models.Model):
     STATUS = (
@@ -217,10 +221,10 @@ class Estoque(models.Model):
         ('2', 'em estoque'),
         ('3', 'entregue ao cliente')
     )
-    dataEntrada = models.DateField()
-    dataSaida = models.DateField()
+    data_entrada = models.DateField()
+    data_saida = models.DateField()
     estado = models.CharField(choices = STATUS, max_length = 50)
-    codigoPedido = models.ForeignKey(Pedido, on_delete = models.CASCADE)
+    pedido = models.ForeignKey(Pedido, on_delete = models.CASCADE)
     
 class Pack(models.Model):
     volume = models.IntegerField()
@@ -237,5 +241,5 @@ class Pack(models.Model):
     
 class NotaFiscal(models.Model):
     chave = models.IntegerField()
-    dataEmissao = models.DateField()
-    PedidoCompra = models.ForeignKey(PedidoCompra, on_delete = models.CASCADE)
+    data_emissao = models.DateField()
+    pedidocompra = models.ForeignKey(PedidoCompra, on_delete = models.CASCADE)
