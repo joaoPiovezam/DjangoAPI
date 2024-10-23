@@ -139,12 +139,12 @@ class Migration(migrations.Migration):
             name='Pedido',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('codigopedido', models.IntegerField()),
-                ('datacriacao', models.DateField(auto_now_add=True)),
-                ('dataentrega', models.DateField()),
+                ('codigo_pedido', models.IntegerField()),
+                ('data_criacao', models.DateField(auto_now_add=True)),
+                ('data_entrega', models.DateField()),
                 ('quantidade', models.IntegerField()),
-                ('pesobruto', models.DecimalField(decimal_places=3, max_digits=15)),
-                ('volumebruto', models.DecimalField(decimal_places=3, max_digits=15)),
+                ('peso_bruto', models.DecimalField(decimal_places=3, max_digits=15)),
+                ('volume_bruto', models.DecimalField(decimal_places=3, max_digits=15)),
                 ('unidade', models.CharField(max_length=255)),
                 ('pacote', models.CharField(max_length=255)),
                 ('volume', models.IntegerField()),
@@ -185,15 +185,6 @@ class Migration(migrations.Migration):
                 ('telefone', models.CharField(max_length=50)),
                 ('email', models.EmailField(max_length=100)),
                 ('orcamento', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='loja.orcamento')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='NotaFiscal',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('chave', models.IntegerField()),
-                ('dataemissao', models.DateField()),
-                ('pedidocompra', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='loja.pedidocompra')),
             ],
         ),
         migrations.CreateModel(

@@ -1,5 +1,6 @@
 from django.db import models
 from rest_framework.authtoken.models import Token
+from django.utils import timezone
 
 def add_ten():
     peca = Peca.objects.order_by('-codigo_interno').first()
@@ -203,7 +204,7 @@ class PedidoCompra(models.Model):
     transportadora = models.ForeignKey(Transportadora, on_delete = models.DO_NOTHING)
     fornecedor = models.ForeignKey(Fornecedor, on_delete = models.DO_NOTHING)
     orcamento = models.ForeignKey(Orcamento, on_delete = models.DO_NOTHING)
-    data_emissao = models.DateField(auto_now_add = True)
+    data_emissao = models.DateField( default=timezone.now)
     operacao_fiscal = models.CharField(max_length = 255)
     vencimento = models.CharField(choices = VENCIMENTOS, max_length = 50)
     comprador = models.CharField(max_length = 255)
@@ -238,8 +239,3 @@ class Pack(models.Model):
     @property
     def volumePacote(self):
         return self.comprimento * self.altura * self.largura
-    
-class NotaFiscal(models.Model):
-    chave = models.IntegerField()
-    data_emissao = models.DateField()
-    pedidocompra = models.ForeignKey(PedidoCompra, on_delete = models.CASCADE)

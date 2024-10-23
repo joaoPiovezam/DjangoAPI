@@ -1,4 +1,4 @@
-FROM python:3-alpine
+FROM python:3.11.10-alpine3.19
 LABEL mantainer="jaopiovezam@gmail.com"
 
 # Essa variável de ambiente é usada para controlar se o Python deve 
@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED 1
 
 # Copia a pasta "djangoapp" e "scripts" para dentro do container.
 COPY . .
-COPY ./scripts /scripts
+#COPY ./scripts /scripts
 
 # Entra na pasta djangoapp no container
 WORKDIR /app
@@ -21,15 +21,20 @@ WORKDIR /app
 # É a porta que vamos usar para o Django.
 EXPOSE 8000
 
+RUN apk add --no-cache --update \
+    python3 python3-dev gcc \
+    gfortran musl-dev \
+    libffi-dev openssl-dev
+
 # RUN executa comandos em um shell dentro do container para construir a imagem. 
 # O resultado da execução do comando é armazenado no sistema de arquivos da 
 # imagem como uma nova camada.
 # Agrupar os comandos em um único RUN pode reduzir a quantidade de camadas da 
 # imagem e torná-la mais eficiente.
-RUN python -m venv /venv && \
-  /venv/bin/pip install --upgrade pip && \
-  /venv/bin/pip install -r /requirements.txt && \
-  adduser --disabled-password --no-create-home duser && \
+RUN python -m venv /venv 
+RUN /venv/bin/pip install --upgrade pip 
+RUN  /venv/bin/pip install -r /requirements.txt 
+RUN  adduser --disabled-password --no-create-home duser && \
   mkdir -p /data/web/static && \
   mkdir -p /data/web/media && \
   chown -R duser:duser /venv && \

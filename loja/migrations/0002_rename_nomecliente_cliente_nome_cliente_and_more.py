@@ -138,7 +138,7 @@ class Migration(migrations.Migration):
         migrations.RenameField(
             model_name='pedidocompra',
             old_name='dataemicao',
-            new_name='data_emicao',
+            new_name='data_emissao',
         ),
         migrations.RenameField(
             model_name='pedidocompra',
