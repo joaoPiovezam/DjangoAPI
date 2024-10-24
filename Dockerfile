@@ -34,15 +34,15 @@ RUN apk add --no-cache --update \
 RUN python -m venv /venv 
 RUN /venv/bin/pip install --upgrade pip 
 RUN  /venv/bin/pip install -r /requirements.txt 
-RUN  adduser --disabled-password --no-create-home duser && \
-  mkdir -p /data/web/static && \
-  mkdir -p /data/web/media && \
-  chown -R duser:duser /venv && \
-  chown -R duser:duser /data/web/static && \
-  chown -R duser:duser /data/web/media && \
-  chmod -R 755 /data/web/static && \
-  chmod -R 755 /data/web/media && \
-  chmod -R +x /scripts
+RUN  adduser --disabled-password --no-create-home duser 
+RUN  mkdir -p /data/web/static 
+RUN  mkdir -p /data/web/media 
+RUN  chown -R duser:duser /venv 
+RUN  chown -R duser:duser /data/web/static 
+RUN  chown -R duser:duser /data/web/media 
+RUN  chmod -R 755 /data/web/static 
+RUN  chmod -R 755 /data/web/media 
+RUN  chmod -R +x /scripts
 
 # Adiciona a pasta scripts e venv/bin 
 # no $PATH do container.
