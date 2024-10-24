@@ -41,6 +41,7 @@ RUN  chown -R duser:duser /venv
 RUN  chown -R duser:duser /data/web/static 
 RUN  chown -R duser:duser /data/web/media 
 RUN  chmod -R 755 /data/web/static 
+RUN  chmod -R 755 /data/web/static/admin 
 RUN  chmod -R 755 /data/web/media 
 RUN  chmod -R +x /scripts
 
