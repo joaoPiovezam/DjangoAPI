@@ -129,7 +129,7 @@ class FornecedorList(generics.ListAPIView):
     queryset = Fornecedor.objects.all()
     serializer_class = FornecedorSerializer
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('cpfCnpj', 'nomeFornecedor')
+    search_fields = ('cpfcnpj', 'nome_fornecedor')
  
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])      
@@ -145,7 +145,7 @@ class PecaFornecedorList(generics.ListAPIView):
         return queryset
     serializer_class = PecaFornecedorSerializer
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ['peca__codigo', 'fornecedor__nomeFornecedor']
+    search_fields = ['peca__codigo', 'fornecedor__nome_fornecedor']
 
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])      
@@ -402,8 +402,8 @@ def addPecas(arquivo):
 
     l = len(tabela)
     for i in range(l):
-        p = Peca(codigo = tabela['codigo'][i], descricao = tabela['descricao'][i], precoVenda = tabela['precoVenda'][i],
-                precoExportacao = tabela['precoExportacao'][i], precoNacional = tabela['precoNacional'][i], ret = tabela['ret'][i],
+        p = Peca(codigo = tabela['codigo'][i], descricao = tabela['descricao'][i], preco_venda = tabela['precoVenda'][i],
+                preco_exportacao = tabela['precoExportacao'][i], preco_nacional = tabela['precoNacional'][i], ret = tabela['ret'][i],
                 cc = tabela['cc'][i], peso  = tabela['peso'][i], comprimento = tabela['comprimento'][i],
                 largura = tabela['largura'][i], altura = tabela['altura'][i], ncm = tabela['ncm'][i], gde  = tabela['gde'][i])
     p.save()
@@ -505,7 +505,7 @@ def gerarCotacao(orcamentoId):
     pecasAdicionadas = []
     pecasNaoAdicionadas = []
     for pedido in pedidos:
-            pecas = pedido.codigoPeca
+            pecas = pedido.peca
             pecaFornecedor = PecaFornecedor.objects.filter(peca = pecas).order_by('-preco').last()
             if pecaFornecedor is None:
                 pecasNaoAdicionadas.append(pecas.codigo)
@@ -516,7 +516,7 @@ def gerarCotacao(orcamentoId):
                         codigoPecaFornecedor = pecaFornecedor
                 )
                 cotacao.save()
-                pecasAdicionadas.append(pecas.codigo + ' - Fonecedor: ' + pecaFornecedor.fornecedor.nomeFornecedor)
+                pecasAdicionadas.append(pecas.codigo + ' - Fonecedor: ' + pecaFornecedor.fornecedor.nome_fornecedor)
     return 'peças adicionadas: ' + str(pecasAdicionadas) + ' pecas não encontradas: ' + str(pecasNaoAdicionadas)
                 
 @authentication_classes([SessionAuthentication, TokenAuthentication])
@@ -533,16 +533,16 @@ def negativarEstoque(orcamentoId):
     pecasAdicionadas = []
     for pedido in pedidos:
         print(pedido)
-        peca = Estoque.objects.filter(codigoPedido = pedido).first()
+        peca = Estoque.objects.filter(pedido = pedido).first()
         if peca is None:
             estoque = Estoque(
                     dataEntrada = '2024-01-01',
                     dataSaida = '2024-01-01',
                     estado = '1',
-                    codigoPedido = pedido
+                    pedido = pedido
             )
             estoque.save()
-            pecasAdicionadas.append(pedido.codigoPeca)
+            pecasAdicionadas.append(pedido.peca)
     return 'peças adicionadas: ' + str(pecasAdicionadas)
 
 @authentication_classes([SessionAuthentication, TokenAuthentication])
@@ -695,9 +695,9 @@ def AddPeca(arquivo):
                 codigo = codigos[i+1],
                 descricao = descricaos[i+1],
                 marca = "john deere",
-                precoVenda = precoVendas[i+1],
-                precoExportacao = precoExportacaos[i+1],
-                precoNacional = precoNacionals[i+1],
+                preco_venda = precoVendas[i+1],
+                preco_exportacao = precoExportacaos[i+1],
+                preco_nacional = precoNacionals[i+1],
                 ret = rets[i+1],
                 cc = ccs[i+1],
                 peso = pesos[i+1],
@@ -710,9 +710,9 @@ def AddPeca(arquivo):
             peca.save()
             pecasAdicionadas.append(peca.codigo)
         else:
-            pecas.precoExportacao = precoExportacaos[i+1]
-            pecas.precoVenda = precoVendas[i+1]
-            pecas.precoNacional = precoNacionals[i+1]
+            pecas.preco_exportacao = precoExportacaos[i+1]
+            pecas.preco_venda = precoVendas[i+1]
+            pecas.preco_nacional = precoNacionals[i+1]
             pecas.save()
             pecasAtualizadas.append(pecas)
         
