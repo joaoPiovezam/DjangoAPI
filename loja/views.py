@@ -48,7 +48,7 @@ def login(request):
         tipo = "cliente"
     else:
         tipo = "usuario"
-        print (usuario.cpfCnpj)
+        print (usuario.cpfcnpj)
     return Response({'token': token.key, 'user': serializer.data,'tipo': tipo})
 
 @api_view(['POST'])
