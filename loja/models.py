@@ -69,7 +69,7 @@ class Cliente(models.Model):
     detalhe = models.TextField()
     
     def __str__(self):
-        return self.nomeCliente
+        return self.nome_cliente
     
 class Fornecedor(models.Model):
     Pessoa = (
@@ -177,7 +177,7 @@ class Pedido(models.Model):
     volume = models.IntegerField()
     
     def __str__(self):
-        return str(self.codigoPedido) + self.codigoPeca.codigo
+        return str(self.codigo_pedido) + self.peca.codigo
     
 class CondicaoPagamento(models.Model):
     STATUS = (
