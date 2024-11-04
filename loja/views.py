@@ -605,7 +605,7 @@ def AddPedidoOrcamento(arquivo, clienteId, orcamentoId):
 
     l = len(codigos)
     pedido = Pedido.objects.last()
-    codigoP = pedido.codigoPedido + 1
+    codigoP = pedido.codigo_pedido + 1
     cliente = Cliente.objects.filter(id = clienteId).first()
     orcamento = Orcamento.objects.filter(id = orcamentoId).first()
     pecasEncontradas = []
