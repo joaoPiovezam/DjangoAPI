@@ -78,7 +78,7 @@ class OrcamentoSerializer(ModelSerializer):
         fields = '__all__'    
         
 class ClienteOrcamentoSerializer(serializers.ModelSerializer):
-    client = ClienteSerializer(source = 'cliente')
+    client = ClienteSerializer#(source = 'cliente')
     class Meta:
         model = Orcamento
         fields = '__all__'
@@ -92,25 +92,25 @@ class PedidoSerializer(serializers.ModelSerializer):
         #extra_fields = ['peca']
 
 class PedidoPecaSerializer(serializers.ModelSerializer):
-    peca = PecaSerializer(source = 'peca')
-    orcamento = ClienteOrcamentoSerializer(source = 'orcamento')
+    peca = PecaSerializer#(source = 'peca')
+    orcamento = ClienteOrcamentoSerializer#(source = 'orcamento')
     class Meta:
         model = Pedido
         fields  = '__all__'#['peca','quantidade']
         extra_fields = ['peca','orcamento']
                         
 class ListaPedidoOrcamentoSerializer(serializers.ModelSerializer):
-    cliente = ClienteOrcamentoSerializer(source = 'orcamento')
-    orcamento = OrcamentoSerializer(source = 'orcamento')
-    peca = PecaSerializer(source = 'peca')
+    cliente = ClienteOrcamentoSerializer#(source = 'orcamento')
+    orcamento = OrcamentoSerializer#(source = 'orcamento')
+    peca = PecaSerializer#(source = 'peca')
     class Meta:
         model = Pedido
         fields = '__all__'#['id','peca','quantidade','dataEntrega','codigoCliente','orcamento','cliente','unidade']
         extra_fields = ['cliente','orcamento','peca']
         
 class CotacaoSerializer(serializers.ModelSerializer):
-    pedido = PedidoSerializer(source = 'pedido')
-    pecasFornecedor  = PecaFornecedorSerializer(source = 'pecafornecedor')
+    pedido = PedidoSerializer#(source = 'pedido')
+    pecasFornecedor  = PecaFornecedorSerializer#(source = 'pecafornecedor')
     class Meta:
         model = Cotacao
         fields = '__all__'
@@ -135,8 +135,8 @@ class PedidoCompra2Serializer(serializers.ModelSerializer):
         extra_fields = ['vencimento', 'transportadora']
 
 class PedidoCompraAllSerializer(serializers.ModelSerializer):
-    pedido = PedidoPecaSerializer(source = 'pedido') 
-    pecasFornecedor  = PecaFornecedorSerializer(source = 'pecafornecedor')
+    pedido = PedidoPecaSerializer#(source = 'pedido') 
+    pecasFornecedor  = PecaFornecedorSerializer#(source = 'pecafornecedor')
     class Meta:
         model = Cotacao
         fields = '__all__' 
@@ -148,7 +148,7 @@ class EstoqueSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class EstoquePecaSerializer(serializers.ModelSerializer):
-    pedido = PedidoPecaSerializer(source = 'pedido')
+    pedido = PedidoPecaSerializer#(source = 'pedido')
     class Meta:
         model = Estoque
         fields = '__all__'
