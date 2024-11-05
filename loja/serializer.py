@@ -136,7 +136,7 @@ class PedidoCompra2Serializer(serializers.ModelSerializer):
 
 class PedidoCompraAllSerializer(serializers.ModelSerializer):
     pedido = PedidoPecaSerializer()#(source = 'pedido') 
-    pecasFornecedor  = PecaFornecedorSerializer()#(source = 'pecafornecedor')
+    pecasFornecedor  = PecaFornecedorSerializer(source = 'pecafornecedor')
     class Meta:
         model = Cotacao
         fields = '__all__' 
