@@ -78,7 +78,7 @@ class OrcamentoSerializer(ModelSerializer):
         fields = '__all__'    
         
 class ClienteOrcamentoSerializer(serializers.ModelSerializer):
-    client = ClienteSerializer(source = 'cliente')
+    client = ClienteSerializer()#(source = 'cliente')
     class Meta:
         model = Orcamento
         fields = '__all__'
