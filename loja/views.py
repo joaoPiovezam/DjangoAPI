@@ -275,7 +275,7 @@ class Cotacao2ViewSet(generics.ListAPIView):
         return queryset
     def post(self, request, *args, **kwargs):
         serializer = CotacaoSerializerV2(data = request.data)
-        cotacao = Cotacao.objects.filter(pedido = request.data['codigoPedido']).first()
+        cotacao = Cotacao.objects.filter(pedido = request.data['pedido']).first()
         if cotacao is not None:
             return Response({"pedido já cotado"}, status=status.HTTP_200_OK)
         if serializer.is_valid():
