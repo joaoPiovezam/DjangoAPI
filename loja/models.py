@@ -176,7 +176,7 @@ class Pedido(models.Model):
     pacote = models.CharField(max_length = 255)
     volume = models.IntegerField()
     descricao = models.CharField(max_length = 255, default="")
-    desconto = models.DecimalField(max_digits = 3, decimal_places=2, default=0.0)
+    desconto = models.DecimalField(max_digits = 5, decimal_places=2, default=0.0)
     
     def __str__(self):
         return str(self.codigo_pedido) + self.peca.codigo
