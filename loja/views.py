@@ -638,6 +638,9 @@ def AddPedidoOrcamento(arquivo, clienteId, orcamentoId):
                     )
                 p.save()
         else:
+            pedido.quantidade = quantidades[i]
+            pedido.descricao = descricao[i]
+            pedido.save()
             pecasJaAdicionadas.append(codigos[i])
 
     return ("Peças adicionadas : " + str(pecasEncontradas) +
