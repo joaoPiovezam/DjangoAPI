@@ -175,7 +175,7 @@ class Pedido(models.Model):
     unidade = models.CharField(max_length = 255)
     pacote = models.CharField(max_length = 255)
     volume = models.IntegerField()
-    descricao = models.CharField(max_length = 255)
+    descricao = models.CharField(max_length = 255, default="")
     desconto = models.DecimalField(max_digits = 3, decimal_places=2)
     
     def __str__(self):
