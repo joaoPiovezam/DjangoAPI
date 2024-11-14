@@ -596,10 +596,12 @@ def AddPedidoOrcamento(arquivo, clienteId, orcamentoId):
     partes = arquivo.split(";")
     codigos = []
     quantidades = []
+    descricao = []
     for parte in partes:
         pecas =  parte.split(",")
         codigos.append(pecas[0])
         quantidades.append(pecas[1])
+        descricao.append(pecas[2])
     
     #tabela = json.loads(arquivo)
 
@@ -631,7 +633,8 @@ def AddPedidoOrcamento(arquivo, clienteId, orcamentoId):
                     quantidade =  quantidades[i],
                     peso_bruto = 10,
                     volume = 0,
-                    volume_bruto = 10
+                    volume_bruto = 10,
+                    descricao = descricao[i]
                     )
                 p.save()
         else:
