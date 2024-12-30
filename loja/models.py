@@ -147,6 +147,7 @@ class Orcamento(models.Model):
     endereco_entrega = models.CharField(max_length = 250)
     cidade_entrega = models.CharField(max_length = 250)
     pais_entrega = models.CharField(max_length = 250)
+    status_oramento = models.CharField(max_length= 2, choices=status, default='1' )
     
     def __str__(self):
         return str(self.codigo)

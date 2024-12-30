@@ -13,10 +13,10 @@ def extrair_float_split(texto):
     return 0
 
 
-tabela = pd.read_csv(r'C:\Users\TARS\OneDrive\Documentos\testeUnimaq.csv', on_bad_lines='skip', encoding='latin-1', lineterminator='\n', sep = ';')
+tabela = pd.read_csv(r'C:\Users\TARS\OneDrive\Documentos\testecrr.csv', on_bad_lines='skip', encoding='latin-1', lineterminator='\n', sep = ';')
 
 l = len(tabela)
-fornecedorO = Fornecedor.objects.filter(id = 1).first()
+fornecedorO = Fornecedor.objects.filter(id = 4).first()
 pecasNaoEncontradas = []
 pecasEncontradas = []
 for i in range(l):

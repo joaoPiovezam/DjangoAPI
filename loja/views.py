@@ -188,6 +188,36 @@ class OrcamentoViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         return ClienteOrcamentoSerializer
 
+def faturar():
+    orcamentos = Orcamento.objects.filter(status_oramento = '1')
+    for orcamento in orcamentos:
+        condicao = CondicaoPagamento.objects.filter(orcamento = orcamento)
+        if condicao.count() > 0:
+            print("oi")
+            orcamento.status_oramento = '2'
+            orcamento.save()
+
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])    
+class OrcamentoNaoFaturadoViewSet(generics.ListAPIView):
+    """Exibindo todos os orçamentos não faturados"""
+    faturar()
+    def get_queryset(self):
+        queryset = Orcamento.objects.filter(status_oramento = '1')
+        return queryset
+    def get_serializer_class(self):
+        return ClienteOrcamentoSerializer
+    
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])    
+class OrcamentoFaturadoViewSet(generics.ListAPIView):
+    """Exibindo todos os orçamentos faturados"""
+    def get_queryset(self):
+        queryset = Orcamento.objects.filter(status_oramento = '2')
+        return queryset
+    def get_serializer_class(self):
+        return ClienteOrcamentoSerializer
+
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])    
 class OrcamentoClienteViewSet(generics.ListAPIView):
@@ -258,7 +288,7 @@ class CotacaoViewSet(viewsets.ModelViewSet):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])  
 class CotacaoOrcamentoViewSet(generics.ListAPIView):
-    """Exibindo todas as cotações"""
+    """Exibindo todas as cotações de um orçamento"""
     #permission_classes = (permissions.AllowAny, )
     def get_queryset(self):
         queryset = Cotacao.objects.filter(pedido__orcamento = self.kwargs['pk'])
