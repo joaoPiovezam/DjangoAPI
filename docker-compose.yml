@@ -1,8 +1,7 @@
-version: '3.9'
-
 services:
   djangoapp:
     container_name: djangoapp
+    command: sh -c "python3 manage.py makemigrations && python3 manage.py migrate --noinput && python3 manage.py collectstatic --noinput && gunicorn --config gunicorn_config.py aurigaone.wsgi:application"
     build:
       context: .
     ports:
@@ -11,5 +10,26 @@ services:
       - .:/app
       - ./data/web/static:/data/web/static/
       - ./data/web/media:/data/web/media/
+      - /var/certbot/conf:/etc/letsencrypt/:ro
     env_file:
       - ./dotenv_files/.env
+
+  nginx:
+      image: nginx:alpine
+      restart: unless-stopped
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - /var/www/static/:/var/www/static/
+        - ./nginx/conf.d/:/etc/nginx/conf.d/
+      depends_on:
+        - djangoapp
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - /var/certbot/conf:/etc/letsencrypt/:rw
+      - /var/certbot/www/:/var/www/certbot/:rw
+    depends_on:
+      - nginx
