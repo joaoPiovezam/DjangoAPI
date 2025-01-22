@@ -37,11 +37,14 @@ RUN  /venv/bin/pip install -r /requirements.txt
 RUN  adduser --disabled-password --no-create-home duser 
 RUN  mkdir -p /data/web/static 
 RUN  mkdir -p /data/web/media 
+RUN  mkdir -p /data/web/static/admin 
 RUN  chown -R duser:duser /venv 
 RUN  chown -R duser:duser /data/web/static 
 RUN  chown -R duser:duser /data/web/media 
+RUN  chown -R duser:duser /data/web/static/admin 
 RUN  chmod -R 755 /data/web/static 
 RUN  chmod -R 755 /data/web/media 
+RUN  chmod -R 755 /data/web/static/admin 
 RUN  chmod -R +x /scripts
 
 # Adiciona a pasta scripts e venv/bin 
