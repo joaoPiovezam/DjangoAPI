@@ -47,9 +47,11 @@ RUN  chown -R duser:duser /public/venv
 RUN  chown -R duser:duser /public/data/web/static 
 RUN  chown -R duser:duser /public/data/web/media 
 RUN  chown -R duser:duser /public/data/web/static/admin 
+RUN  chown -R duser:duser /var/log/letsencrypt 
 RUN  chmod -R 755 /public/data/web/static 
 RUN  chmod -R 755 /public/data/web/media 
 RUN  chmod -R 755 /public/data/web/static/admin 
+RUN  chmod -R 755 /var/log/letsencrypt 
 RUN  chmod -R +x /public/scripts
 
 # Adiciona a pasta scripts e venv/bin 
