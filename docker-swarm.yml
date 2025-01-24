@@ -13,7 +13,7 @@ services:
       - ./data/web/static:/data/web/static/
       - ./data/web/media:/data/web/media/
     env_file:
-      - ./public/dotenv_files/.env
+      - ./dotenv_files/.env
 
   nginx:
     build:

@@ -15,7 +15,7 @@ COPY . .
 #COPY ./scripts /scripts
 
 # Entra na pasta djangoapp no container
-WORKDIR /app
+WORKDIR /public
 
 # A porta 8000 estará disponível para conexões externas ao container
 # É a porta que vamos usar para o Django.
@@ -33,23 +33,23 @@ RUN apk add --no-cache --update \
 # imagem e torná-la mais eficiente.
 RUN python -m venv /venv 
 RUN /venv/bin/pip install --upgrade pip 
-RUN  /venv/bin/pip install -r /requirements.txt 
+RUN  /venv/bin/pip install -r /public/requirements.txt 
 RUN  adduser --disabled-password --no-create-home duser 
-RUN  mkdir -p /data/web/static 
-RUN  mkdir -p /data/web/media 
-RUN  mkdir -p /data/web/static/admin 
-RUN  chown -R duser:duser /venv 
-RUN  chown -R duser:duser /data/web/static 
-RUN  chown -R duser:duser /data/web/media 
-RUN  chown -R duser:duser /data/web/static/admin 
-RUN  chmod -R 755 /data/web/static 
-RUN  chmod -R 755 /data/web/media 
-RUN  chmod -R 755 /data/web/static/admin 
-RUN  chmod -R +x /scripts
+RUN  mkdir -p /public/data/web/static 
+RUN  mkdir -p /public/data/web/media 
+RUN  mkdir -p /public/data/web/static/admin 
+RUN  chown -R duser:duser /public/venv 
+RUN  chown -R duser:duser /public/data/web/static 
+RUN  chown -R duser:duser /public/data/web/media 
+RUN  chown -R duser:duser /public/data/web/static/admin 
+RUN  chmod -R 755 /public/data/web/static 
+RUN  chmod -R 755 /public/data/web/media 
+RUN  chmod -R 755 /public/data/web/static/admin 
+RUN  chmod -R +x /public/scripts
 
 # Adiciona a pasta scripts e venv/bin 
 # no $PATH do container.
-ENV PATH="/scripts:/venv/bin:$PATH"
+ENV PATH="/public/scripts:/venv/bin:$PATH"
 
 # Muda o usuário para duser
 USER duser

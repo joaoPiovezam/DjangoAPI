@@ -3,8 +3,8 @@
 # O shell irá encerrar a execução do script quando um comando falhar
 set -e
 
-while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
-  echo "🟡 Waiting for Postgres Database Startup ($POSTGRES_HOST $POSTGRES_PORT) ..."
+while ! nc -z jp-db.c1y6wwic8wtz.sa-east-1.rds.amazonaws.com 5432; do
+  echo "🟡 Waiting for Postgres Database Startup (jp-db.c1y6wwic8wtz.sa-east-1.rds.amazonaws.com 5432) ..."
   sleep 2
 done
 
