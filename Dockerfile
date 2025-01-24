@@ -43,6 +43,7 @@ RUN  adduser --disabled-password --no-create-home duser
 RUN  mkdir -p /public/data/web/static 
 RUN  mkdir -p /public/data/web/media 
 RUN  mkdir -p /public/data/web/static/admin 
+RUN  mkdir -p /var/log/letsencrypt
 RUN  chown -R duser:duser /public/venv 
 RUN  chown -R duser:duser /public/data/web/static 
 RUN  chown -R duser:duser /public/data/web/media 
