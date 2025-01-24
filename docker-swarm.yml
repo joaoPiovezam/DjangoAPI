@@ -4,6 +4,7 @@ services:
 
   djangoapp:
     container_name: djangoapp
+    image: djangoimage/django
     build:
       context: .
     ports:
