@@ -26,6 +26,11 @@ RUN apk add --no-cache --update \
     gfortran musl-dev \
     libffi-dev openssl-dev
 
+RUN apk update && \
+    apk upgrade && \
+    apk --update add logrotate openssl bash && \
+    apk add --no-cache certbot certbot-nginx
+
 # RUN executa comandos em um shell dentro do container para construir a imagem. 
 # O resultado da execução do comando é armazenado no sistema de arquivos da 
 # imagem como uma nova camada.
