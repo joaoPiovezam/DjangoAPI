@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'change-me')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv("DEGUB",1)))
 
-ALLOWED_HOSTS="127.0.0.1, localhost, 18.231.119.71, api.athlan.com.br"
+ALLOWED_HOSTS= ["127.0.0.1, localhost, 18.231.119.71, api.athlan.com.br"]
 #ALLOWED_HOSTS = [
  #   h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',')
   #  if h.strip()
