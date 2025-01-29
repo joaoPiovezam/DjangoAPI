@@ -12,52 +12,38 @@ ENV PYTHONUNBUFFERED 1
 
 # Copia a pasta "djangoapp" e "scripts" para dentro do container.
 COPY . .
-#COPY ./scripts /scripts
+COPY scripts /scripts
 
 # Entra na pasta djangoapp no container
-WORKDIR /public
+WORKDIR /.
 
 # A porta 8000 estará disponível para conexões externas ao container
 # É a porta que vamos usar para o Django.
 EXPOSE 8000
-
-RUN apk add --no-cache --update \
-    python3 python3-dev gcc \
-    gfortran musl-dev \
-    libffi-dev openssl-dev
-
-RUN apk update && \
-    apk upgrade && \
-    apk --update add logrotate openssl bash && \
-    apk add --no-cache certbot certbot-nginx
 
 # RUN executa comandos em um shell dentro do container para construir a imagem. 
 # O resultado da execução do comando é armazenado no sistema de arquivos da 
 # imagem como uma nova camada.
 # Agrupar os comandos em um único RUN pode reduzir a quantidade de camadas da 
 # imagem e torná-la mais eficiente.
-RUN python -m venv /venv 
-RUN /venv/bin/pip install --upgrade pip 
-RUN  /venv/bin/pip install -r /public/requirements.txt 
-RUN  adduser --disabled-password --no-create-home duser 
-RUN  mkdir -p /public/data/web/static 
-RUN  mkdir -p /public/data/web/media 
-RUN  mkdir -p /public/data/web/static/admin 
-RUN  mkdir -p /var/log/letsencrypt
-RUN  chown -R duser:duser /public/venv 
-RUN  chown -R duser:duser /public/data/web/static 
-RUN  chown -R duser:duser /public/data/web/media 
-RUN  chown -R duser:duser /public/data/web/static/admin 
-RUN  chown -R duser:duser /var/log/letsencrypt 
-RUN  chmod -R 755 /public/data/web/static 
-RUN  chmod -R 755 /public/data/web/media 
-RUN  chmod -R 755 /public/data/web/static/admin 
-RUN  chmod -R 755 /var/log/letsencrypt 
-RUN  chmod -R +x /public/scripts
+RUN python -m venv /venv && \
+  /venv/bin/pip install --upgrade pip && \
+  /venv/bin/pip install -r /requirements.txt && \
+  adduser --disabled-password --no-create-home duser && \
+  mkdir -p /data/web/static && \
+  mkdir -p /data/web/media && \
+  chown -R duser:duser /venv && \
+  chown -R duser:duser /data/web/static && \
+  chown -R duser:duser /data/web/media && \
+  chmod -R 755 /data/web/static && \
+  chmod -R 755 /data/web/media && \
+  chmod -R +x /scripts 
+
+RUN chmod +x /scripts/commands.sh
 
 # Adiciona a pasta scripts e venv/bin 
 # no $PATH do container.
-ENV PATH="/public/scripts:/venv/bin:$PATH"
+ENV PATH="/scripts:/venv/bin:$PATH"
 
 # Muda o usuário para duser
 USER duser
