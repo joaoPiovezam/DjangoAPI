@@ -11,11 +11,15 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Copia a pasta "djangoapp" e "scripts" para dentro do container.
-COPY . .
+RUN mkdir /app
+
+WORKDIR /app
+
+COPY . /app
 COPY scripts /scripts
 
 # Entra na pasta djangoapp no container
-WORKDIR /.
+
 
 # A porta 8000 estará disponível para conexões externas ao container
 # É a porta que vamos usar para o Django.
@@ -26,27 +30,23 @@ EXPOSE 8000
 # imagem como uma nova camada.
 # Agrupar os comandos em um único RUN pode reduzir a quantidade de camadas da 
 # imagem e torná-la mais eficiente.
-RUN python -m venv /venv && \
-  /venv/bin/pip install --upgrade pip && \
-  /venv/bin/pip install -r /requirements.txt && \
-  adduser --disabled-password --no-create-home duser && \
-  mkdir -p /data/web/static && \
-  mkdir -p /data/web/media && \
-  chown -R duser:duser /venv && \
-  chown -R duser:duser /data/web/static && \
-  chown -R duser:duser /data/web/media && \
-  chmod -R 755 /data/web/static && \
-  chmod -R 755 /data/web/media && \
-  chmod -R +x /scripts 
+RUN python -m venv /venv 
+RUN  /venv/bin/pip install --upgrade pip 
+RUN  /venv/bin/pip install -r requirements.txt 
+RUN  adduser --disabled-password --no-create-home duser 
+RUN  mkdir -p /data/web/static 
+RUN  mkdir -p /data/web/media 
+RUN  chown -R duser:duser /venv 
+RUN  chown -R duser:duser /data/web/static 
+RUN  chown -R duser:duser /data/web/media 
+RUN  chmod -R 755 /data/web/static 
+RUN chmod -R 755 /data/web/media 
+RUN  chmod -R +x /scripts 
 
-RUN chmod +x /scripts/commands.sh
 
-# Adiciona a pasta scripts e venv/bin 
-# no $PATH do container.
+RUN chmod +x  commands.sh
+
 ENV PATH="/scripts:/venv/bin:$PATH"
-
-# Muda o usuário para duser
-USER duser
-
-# Executa o arquivo scripts/commands.sh
-CMD ["commands.sh"]
+  # Start the application using Gunicorn
+#CMD  ["./commands.sh"]
+CMD  ["python",  "manage.py", "runserver", "0.0.0.0:80"]
