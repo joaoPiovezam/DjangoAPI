@@ -10,12 +10,12 @@ services:
     env_file:
       - .env.local
 
-  frontend-proxy:
-    image: nginx:latest
-    ports:
-      - "8000:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./static:/static:ro
-    depends_on:
-      - django-web
+#  frontend-proxy:
+ #   image: nginx:latest
+   # ports:
+      #- "8000:80"
+    #volumes:
+      #- ./nginx.conf:/etc/nginx/nginx.conf:ro
+      #- ./static:/static:ro
+    #depends_on:
+      #- django-web
