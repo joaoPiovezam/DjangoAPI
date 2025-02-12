@@ -50,4 +50,4 @@ ENV PATH="/scripts:/venv/bin:$PATH"
   # Start the application using Gunicorn
 #CMD  ["./commands.sh"]
 #CMD  ["python",  "manage.py", "runserver", "0.0.0.0:80"]
-CMD   ["python",  "manage.py", "runsslserver", "0.0.0.0:80",  "--certificate", "/fullchain.pem",  "--key", "/privkey.pem"]
+CMD   ["python",  "manage.py", "runsslserver", "0.0.0.0:80",  "--certificate", "fullchain.pem",  "--key", "privkey.pem"]
