@@ -42,6 +42,7 @@ RUN  chown -R duser:duser /data/web/media
 RUN  chmod -R 755 /data/web/static 
 RUN chmod -R 755 /data/web/media 
 RUN  chmod -R +x /scripts 
+RUN chmod -R 755 /etc/letsencrypt/live/api.athlan.com.br/
 
 
 RUN chmod +x  commands.sh
