@@ -41,7 +41,6 @@ RUN  chown -R duser:duser /data/web/static
 RUN  chown -R duser:duser /data/web/media 
 RUN  chmod -R 755 /data/web/static 
 RUN chmod -R 755 /data/web/media 
-RUN sudo chmod -R 777 /letsencrypt
 RUN  chmod -R +x /scripts 
 
 
