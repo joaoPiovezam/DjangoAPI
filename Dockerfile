@@ -42,7 +42,6 @@ RUN  chown -R duser:duser /data/web/media
 RUN  chmod -R 755 /data/web/static 
 RUN chmod -R 755 /data/web/media 
 RUN  chmod -R +x /scripts 
-RUN sudo chmod -R 777 /letsencrypt/accounts/acme-v02.api.letsencrypt.org
 
 
 RUN chmod +x  commands.sh
@@ -51,4 +50,4 @@ ENV PATH="/scripts:/venv/bin:$PATH"
   # Start the application using Gunicorn
 #CMD  ["./commands.sh"]
 #CMD  ["python",  "manage.py", "runserver", "0.0.0.0:80"]
-CMD   ["python",  "manage.py", "runsslserver", "0.0.0.0:80",  "--certificate", "/letsencrypt/api.athlan.com.br/livefullchain.pem",  "--key", "/letsencrypt/api.athlan.com.br/privkey.pem"]
+CMD   ["python",  "manage.py", "runsslserver", "0.0.0.0:80",  "--certificate", "...../etc/letsencrypt/api.athlan.com.br/livefullchain.pem",  "--key", "...../letsencrypt/api.athlan.com.br/privkey.pem"]
