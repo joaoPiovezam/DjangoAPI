@@ -191,8 +191,3 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer', ),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', ),
 }
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
-USE_X_FORWARDED_PORT = True
-SECURE_SSL_REDIRECT = True
