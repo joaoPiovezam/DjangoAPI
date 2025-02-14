@@ -50,4 +50,4 @@ ENV PATH="/scripts:/venv/bin:$PATH"
   # Start the application using Gunicorn
 #CMD  ["./commands.sh"]
 #CMD  ["python",  "manage.py", "runserver", "0.0.0.0:80"]
-CMD   ["python",  "manage.py", "runsslserver", "0.0.0.0:80",  "--certificate", "...../etc/letsencrypt/api.athlan.com.br/livefullchain.pem",  "--key", "...../letsencrypt/api.athlan.com.br/privkey.pem"]
+CMD   ["python",  "manage.py", "runsslserver", "0.0.0.0:80",  "--certificate", "/livefullchain.pem",  "--key", "privkey.pem"]
