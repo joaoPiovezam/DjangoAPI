@@ -21,16 +21,16 @@ DATA_DIR = BASE_DIR.parent / 'data' / 'web'
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'change-me')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-me-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.getenv("DEGUB",1)))
+DEBUG = bool(int(os.getenv("DEBUG", 0)))  # Fixed typo: DEGUB -> DEBUG, default to False
 
-ALLOWED_HOSTS= ['127.0.0.1', 'localhost', '18.231.119.71', 'api.athlan.com.br']
-#ALLOWED_HOSTS = [
- #   h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',')
-  #  if h.strip()
-#]
+# Use environment variable for allowed hosts
+ALLOWED_HOSTS = [
+    h.strip() for h in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+    if h.strip()
+]
 
 
 # Application definition
@@ -44,21 +44,22 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',  # Added for JWT support
+    'rest_framework_simplejwt.token_blacklist',  # Added for token blacklisting
     'loja',
     'corsheaders',
     'sslserver',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Moved to top for CORS handling
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'setup.urls'
@@ -86,25 +87,16 @@ WSGI_APPLICATION = 'setup.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    #'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': BASE_DIR / 'db.sqlite3',
-    #}
-    #'default': {
-        #'ENGINE': os.getenv('DB_ENGINE', 'change-me'),
-        #'NAME': os.getenv('POSTGRES_DB', 'change-me'),
-        #'USER': os.getenv('POSTGRES_USER', 'change-me'),
-        #'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'change-me'),
-        #'HOST': os.getenv('POSTGRES_HOST', 'change-me'),
-        #'PORT': os.getenv('POSTGRES_PORT', 'change-me'),
-    #}
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': "postgres",
-        'USER': "postgres",
-        'PASSWORD': "Shippou.2003",
-        'HOST': "jp-db.c1y6wwic8wtz.sa-east-1.rds.amazonaws.com",
-        'PORT': "5432",
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql_psycopg2'),
+        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+        'OPTIONS': {
+            'sslmode': 'require',  # Enforce SSL connection
+        },
     }
 }
 
@@ -154,40 +146,101 @@ MEDIA_ROOT = DATA_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Security Settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+X_FRAME_OPTIONS = 'DENY'
+
+# HTTPS Settings (enable in production)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# Session Security
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# CSRF Security
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Strict'
+CSRF_TRUSTED_ORIGINS = [
+    'https://api.athlan.com.br',
+    'http://localhost:8000',  # For development only
+]
+
+# CORS Configuration - Secure settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:9000",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5500",
-    "http://0.0.0.0:0",
+    "https://api.athlan.com.br",  # Added HTTPS version
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+# SECURITY FIX: Disable allow all origins
+CORS_ORIGIN_ALLOW_ALL = False
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    'http://127.0.0.1:8000',
+# Allow credentials for authenticated requests
+CORS_ALLOW_CREDENTIALS = True
+
+# Allowed headers for CORS
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'DEAFAULT_AUTHENTICATION_CLASSES':[
-      'rest_framework_simplejwt.authentication,JWTAuthentication',  
-      'rest_framework.authentication.BasicAuthentication',
-      'rest_framework.permissions.AllowAny',
+    # SECURITY FIX: Fixed typo DEAFAULT -> DEFAULT
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Fixed syntax
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 500,
+    'PAGE_SIZE': 100,  # Reduced from 500 to limit data exposure
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour'
+    }
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'SESSION_COOKIE_HTTPONLY': True,
-    'CSRF_COOKIE_HTTPONLY': True,
+    # SECURITY FIX: Reduced token lifetime from 30 days to 15 minutes
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADER_TYPES': ('Bearer', ),
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', ),
+    'UPDATE_LAST_LOGIN': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': os.getenv('JWT_SECRET_KEY', SECRET_KEY),
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'JWK_URL': None,
+    'LEEWAY': 0,
 }
