@@ -198,11 +198,11 @@ def faturar():
             orcamento.save()
 
 @authentication_classes([SessionAuthentication, TokenAuthentication])
-@permission_classes([IsAuthenticated])    
+@permission_classes([IsAuthenticated])
 class OrcamentoNaoFaturadoViewSet(generics.ListAPIView):
     """Exibindo todos os orçamentos não faturados"""
-    faturar()
     def get_queryset(self):
+        faturar()  # Moved the function call here to avoid execution during module import
         queryset = Orcamento.objects.filter(status_oramento = '1')
         return queryset
     def get_serializer_class(self):

@@ -86,10 +86,11 @@ WSGI_APPLICATION = 'setup.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    #'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': BASE_DIR / 'db.sqlite3',
-    #}
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+    # PostgreSQL configuration (commented out)
     #'default': {
         #'ENGINE': os.getenv('DB_ENGINE', 'change-me'),
         #'NAME': os.getenv('POSTGRES_DB', 'change-me'),
@@ -98,14 +99,15 @@ DATABASES = {
         #'HOST': os.getenv('POSTGRES_HOST', 'change-me'),
         #'PORT': os.getenv('POSTGRES_PORT', 'change-me'),
     #}
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': "postgres",
-        'USER': "postgres",
-        'PASSWORD': "Shippou.2003",
-        'HOST': "jp-db.c1y6wwic8wtz.sa-east-1.rds.amazonaws.com",
-        'PORT': "5432",
-    }
+    # AWS RDS PostgreSQL configuration (commented out)
+    #'default': {
+        #'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        #'NAME': "postgres",
+        #'USER': "postgres",
+        #'PASSWORD': "Shippou.2003",
+        #'HOST': "jp-db.c1y6wwic8wtz.sa-east-1.rds.amazonaws.com",
+        #'PORT': "5432",
+    #}
 }
 
 
