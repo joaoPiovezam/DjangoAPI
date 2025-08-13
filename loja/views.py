@@ -35,38 +35,80 @@ from django.http import HttpResponse
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def login(request):
-    user = get_object_or_404(User, username=request.data['username'])
-    if not user.check_password(request.data['password']):
-        return Response("missing user", status=status.HTTP_404_NOT_FOUND)
-    user = authenticate(username=request.data['username'], password=request.data['password'])
+    # SECURITY: Input validation
+    username = request.data.get('username', '').strip()
+    password = request.data.get('password', '')
+
+    if not username or not password:
+        return Response({"error": "Username and password are required"},
+                       status=status.HTTP_400_BAD_REQUEST)
+
+    # SECURITY: Prevent username enumeration by using authenticate directly
+    user = authenticate(username=username, password=password)
+    if not user:
+        return Response({"error": "Invalid credentials"},
+                       status=status.HTTP_401_UNAUTHORIZED)
+
+    if not user.is_active:
+        return Response({"error": "Account is disabled"},
+                       status=status.HTTP_401_UNAUTHORIZED)
+
     token, created = Token.objects.get_or_create(user=user)
     serializer = UserSerializer(user)
-    usuario = Usuario.objects.filter(email = user.email).first()
-    usuarioS = UsuarioSerializer(usuario)
-    #cliente = Cliente.objects.filter(email = user.email)
+    usuario = Usuario.objects.filter(email=user.email).first()
+
     if usuario is None:
         tipo = "cliente"
     else:
         tipo = "usuario"
-        print (usuario.cpfcnpj)
-    return Response({'token': token.key, 'user': serializer.data,'tipo': tipo})
+        # SECURITY: Remove sensitive data logging
+        # print (usuario.cpfcnpj)  # Removed logging of sensitive data
+
+    return Response({
+        'token': token.key,
+        'user': serializer.data,
+        'tipo': tipo
+    })
 
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def signup(request):
+    # SECURITY: Input validation
+    username = request.data.get('username', '').strip()
+    password = request.data.get('password', '')
+    email = request.data.get('email', '').strip()
+
+    if not username or not password or not email:
+        return Response({"error": "Username, password, and email are required"},
+                       status=status.HTTP_400_BAD_REQUEST)
+
+    # SECURITY: Check if user already exists
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "Username already exists"},
+                       status=status.HTTP_400_BAD_REQUEST)
+
+    if User.objects.filter(email=email).exists():
+        return Response({"error": "Email already exists"},
+                       status=status.HTTP_400_BAD_REQUEST)
+
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        user = User.objects.get(username=request.data['username'])
-        user.set_password(request.data['password'])
+        user = serializer.save()
+        user.set_password(password)
         user.save()
         token = Token.objects.create(user=user)
         return Response({'token': token.key, 'user': serializer.data})
-    return Response(serializer.errors, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def test_token(request):
-    return Response("passed!")
+    return Response({
+        "message": "Token is valid",
+        "user": request.user.username,
+        "authenticated": True
+    })
 
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])  
